@@ -182,7 +182,8 @@ private:
 	void          CreateHotkeys();
 	void          ClearHotkeys();
 
-	bool          InitService();
+        bool          InitService();
+        bool          UpdateService(const char *server, const char *key);
 
 	bool          InitBasicConfigDefaults();
 	bool          InitBasicConfig();
@@ -539,6 +540,11 @@ private slots:
 	void on_streamButton_clicked();
 	void on_recordButton_clicked();
 	void on_settingsButton_clicked();
+
+	void on_btnLogin_clicked();
+	void on_btnLogout_clicked();
+	void on_btnLiveCreate_clicked();
+	void on_btnLiveStop_clicked();
 
 	void on_actionWebsite_triggered();
 

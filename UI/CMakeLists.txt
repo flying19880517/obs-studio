@@ -44,6 +44,8 @@ if(NOT Qt5Widgets_FOUND)
 	endif()
 endif()
 
+find_package(Qt5Network)
+
 include_directories(SYSTEM "obs-frontend-api")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/libobs")
 
@@ -89,6 +91,9 @@ endif()
 
 set(obs_SOURCES
 	${obs_PLATFORM_SOURCES}
+	requests.cpp
+	ximalayaapi.cpp
+	ximalaya-login-dialog.cpp
 	obs-app.cpp
 	api-interface.cpp
 	window-basic-main.cpp
@@ -132,6 +137,9 @@ set(obs_SOURCES
 	qt-wrappers.cpp)
 
 set(obs_HEADERS
+	requests.hpp
+	ximalayaapi.hpp
+	ximalaya-login-dialog.hpp
 	obs-app.hpp
 	platform.hpp
 	window-main.hpp
@@ -175,6 +183,7 @@ set(obs_HEADERS
 	qt-wrappers.hpp)
 
 set(obs_UI
+	forms/XimalayaLogin.ui
 	forms/NameDialog.ui
 	forms/OBSLicenseAgreement.ui
 	forms/OBSLogReply.ui
@@ -214,6 +223,7 @@ target_link_libraries(obs
 	libobs
 	libff
 	Qt5::Widgets
+	Qt5::Network
 	obs-frontend-api
 	${LIBCURL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})

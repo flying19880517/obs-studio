@@ -60,6 +60,8 @@
 #include <QScreen>
 #include <QWindow>
 
+#include "ximalayaapi.hpp"
+
 using namespace std;
 
 namespace {
@@ -240,6 +242,25 @@ OBSBasic::OBSBasic(QWidget *parent)
 	addNudge(Qt::Key_Down, SLOT(NudgeDown()));
 	addNudge(Qt::Key_Left, SLOT(NudgeLeft()));
 	addNudge(Qt::Key_Right, SLOT(NudgeRight()));
+
+	//隐藏不需要的控件
+	ui->sceneTransitionsLabel->setVisible(false);
+	ui->transitionsContainer->setVisible(false);
+	ui->scenesLabel->setVisible(false);
+	ui->scenesFrame->setVisible(false);
+	ui->sourcesLabel->setVisible(false);
+	ui->sourcesFrame->setVisible(false);
+	ui->preview->setVisible(false);
+
+	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
+	ui->viewMenu->menuAction()->setVisible(false);
+	ui->profileMenu->menuAction()->setVisible(false);
+	ui->sceneCollectionMenu->menuAction()->setVisible(false);
+	ui->menuTools->menuAction()->setVisible(false);
+
+	ui->modeSwitch->setVisible(false);
+
+	ui->mainSplitter->setOpaqueResize(false);
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -778,6 +799,22 @@ bool OBSBasic::InitService()
 	obs_service_release(service);
 
 	return true;
+}
+
+bool OBSBasic::UpdateService(const char *server, const char *key)
+{
+        obs_data_t *settings = obs_service_get_settings(service);
+
+		obs_data_set_string(settings, "server", server);
+		obs_data_set_string(settings, "key", key);
+
+        service = obs_service_create("rtmp_custom", "default_service", settings,
+                                     nullptr);
+        obs_service_release(service);
+
+        obs_data_release(settings);
+
+        return !!service;
 }
 
 static const double scaled_vals[] =
@@ -4176,6 +4213,8 @@ void OBSBasic::ReplayBufferStop(int code)
 
 void OBSBasic::on_streamButton_clicked()
 {
+    XimalayaApi api;
+
 	if (outputHandler->StreamingActive()) {
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",
 				"WarnBeforeStoppingStream");
@@ -4191,7 +4230,12 @@ void OBSBasic::on_streamButton_clicked()
 		}
 
 		StopStreaming();
+
+                //api.liveStop();
 	} else {
+
+
+		
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",
 				"WarnBeforeStartingStream");
 
@@ -4220,6 +4264,48 @@ void OBSBasic::on_recordButton_clicked()
 void OBSBasic::on_settingsButton_clicked()
 {
 	on_action_Settings_triggered();
+}
+
+void OBSBasic::on_btnLogin_clicked()
+{
+	XimalayaApi api;
+	QString msg;
+	if (!api.loginXimalaya(&msg))
+	{
+		QMessageBox::warning(this, "登录失败", msg);
+	}
+}
+
+void OBSBasic::on_btnLogout_clicked()
+{
+	XimalayaApi api;
+	api.logout();
+}
+
+void OBSBasic::on_btnLiveCreate_clicked()
+{
+	XimalayaApi api;
+	QString msg;
+	if (!api.checkLogin(&msg))
+	{
+		QMessageBox::warning(this, "登录失败", msg);
+		return;
+	}
+	QString server;
+	QString key;
+	if(!api.liveStart(&server, &key, &msg))
+	{
+		QMessageBox::warning(this, "创建直播失败", msg);
+		return;
+	}
+
+	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
+}
+
+void OBSBasic::on_btnLiveStop_clicked()
+{
+	XimalayaApi api;
+	api.liveStop();
 }
 
 void OBSBasic::on_actionWebsite_triggered()

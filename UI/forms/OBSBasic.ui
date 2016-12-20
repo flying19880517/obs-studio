@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1110</width>
+    <width>1516</width>
     <height>724</height>
    </rect>
   </property>
@@ -78,6 +78,34 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnLogin">
+            <property name="text">
+             <string>登录</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnLogout">
+            <property name="text">
+             <string>注销</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnLiveCreate">
+            <property name="text">
+             <string>创建直播</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnLiveStop">
+            <property name="text">
+             <string>关闭直播</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -229,7 +257,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>215</width>
+             <width>184</width>
              <height>16</height>
             </rect>
            </property>
@@ -804,8 +832,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1110</width>
-     <height>21</height>
+     <width>1516</width>
+     <height>37</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
