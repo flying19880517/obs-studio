@@ -103,6 +103,7 @@ bool XimalayaApi::liveCreate(QString title, QString categoryId, QString *msg)
 		QString roomId = jsonCreate["roomId"].toVariant().toString();
 		settings.setValue("liveId", liveId);
 		settings.setValue("roomId", roomId);
+		settings.setValue("liveTitle", title);
 		return true;
 	}
 	if (result.contains("msg"))

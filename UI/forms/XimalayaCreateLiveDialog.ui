@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>597</width>
-    <height>358</height>
+    <width>784</width>
+    <height>273</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,65 +17,51 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>登录喜马拉雅FM</string>
+   <string>Ximalaya.CreateLiveDialog.Title</string>
   </property>
-  <widget class="QPushButton" name="btnLogin">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>240</y>
-     <width>491</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>登    录</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="txtUsername">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>30</y>
-     <width>491</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string/>
-   </property>
-   <property name="placeholderText">
-    <string>请输入手机号</string>
-   </property>
-   <property name="clearButtonEnabled">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="txtPassword">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>120</y>
-     <width>491</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="inputMask">
-    <string/>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="echoMode">
-    <enum>QLineEdit::Password</enum>
-   </property>
-   <property name="placeholderText">
-    <string>请输入密码</string>
-   </property>
-   <property name="clearButtonEnabled">
-    <bool>true</bool>
-   </property>
-  </widget>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="txtLiveTitle">
+       <property name="placeholderText">
+        <string>Ximalaya.CreateLiveDialog.LiveTitlePlaceHolder</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lblLiveCategory">
+       <property name="text">
+        <string>Ximalaya.CreateLiveDialog.LiveCategory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="ddlCategory"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblLiveTitle">
+       <property name="text">
+        <string>Ximalaya.CreateLiveDialog.LiveTitle</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="btnCreateLive">
+     <property name="text">
+      <string>Ximalaya.CreateLiveDialog.ButtonCreateLive</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

@@ -20,12 +20,10 @@ void XimalayaLoginDialog::on_btnLogin_clicked()
 {
     XimalayaApi api;
 	QString msg;
-    if(api.login(ui->txtUsername->text(),ui->txtPassword->text(), &msg))
+    if(!api.login(ui->txtUsername->text(),ui->txtPassword->text(), &msg))
     {
-        accept();
-	}
-	else if(!msg.isEmpty())
-	{
 		QMessageBox::warning(this, QTStr("Ximalaya.Api.LoginFailed"), msg);
+		return;
 	}
+	accept();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "ximalayaapi.hpp"
 
 namespace Ui {
 class XimalayaCreateLiveDialog;
@@ -15,8 +16,10 @@ public:
     ~XimalayaCreateLiveDialog();
 
 private slots:
-    void on_btnLogin_clicked();
+    void on_btnCreateLive_clicked();
 
 private:
     Ui::XimalayaCreateLiveDialog *ui;
+
+	XimalayaApi ximalayaApi;
 };

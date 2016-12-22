@@ -855,14 +855,9 @@ bool OBSBasic::XimalayaLiveStart()
 			return false;
 		}
 	}
-	//XimalayaCreateLiveDialog dlgInfo(this);
-	//if (dlgInfo.exec() != QDialog::Accepted)
-	//{
-	//	return false;
-	//}
-	if (!ximalayaApi.liveCreate("直播", "24", &msg))
+	XimalayaCreateLiveDialog dlgInfo(this);
+	if (dlgInfo.exec() != QDialog::Accepted)
 	{
-		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveCreateFailed"), msg);
 		return false;
 	}
 	if (!ximalayaApi.liveGetPushUrl(&msg))
