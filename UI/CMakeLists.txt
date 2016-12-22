@@ -94,6 +94,7 @@ set(obs_SOURCES
 	requests.cpp
 	ximalayaapi.cpp
 	ximalaya-login-dialog.cpp
+	ximalaya-create-live-dialog.cpp
 	obs-app.cpp
 	api-interface.cpp
 	window-basic-main.cpp
@@ -140,6 +141,7 @@ set(obs_HEADERS
 	requests.hpp
 	ximalayaapi.hpp
 	ximalaya-login-dialog.hpp
+	ximalaya-create-live-dialog.hpp
 	obs-app.hpp
 	platform.hpp
 	window-main.hpp
@@ -183,7 +185,8 @@ set(obs_HEADERS
 	qt-wrappers.hpp)
 
 set(obs_UI
-	forms/XimalayaLogin.ui
+	forms/XimalayaLoginDialog.ui
+	forms/XimalayaCreateLiveDialog.ui
 	forms/NameDialog.ui
 	forms/OBSLicenseAgreement.ui
 	forms/OBSLogReply.ui

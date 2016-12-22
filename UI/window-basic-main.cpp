@@ -61,6 +61,8 @@
 #include <QWindow>
 
 #include "ximalayaapi.hpp"
+#include "ximalaya-login-dialog.hpp"
+#include "ximalaya-create-live-dialog.hpp"
 
 using namespace std;
 
@@ -261,6 +263,8 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->modeSwitch->setVisible(false);
 
 	ui->mainSplitter->setOpaqueResize(false);
+
+	UpdateLoginState();
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -815,6 +819,94 @@ bool OBSBasic::UpdateService(const char *server, const char *key)
         obs_data_release(settings);
 
         return !!service;
+}
+
+bool OBSBasic::UpdateLoginState()
+{
+	QSettings settings("Ximalaya", "obs");
+	if (ximalayaApi.checkLogin())
+	{
+		ui->btnLogin->setVisible(false);
+		ui->btnLogout->setVisible(true);
+		ui->lblNickname->setVisible(true);
+		ui->lblNickname->setText(settings.value("nickname").toString());
+	}
+	else
+	{
+		ui->btnLogin->setVisible(true);
+		ui->btnLogout->setVisible(false);
+		ui->lblNickname->setVisible(false);
+	}
+	return true;
+}
+
+bool OBSBasic::XimalayaLiveStart()
+{
+	QString msg;
+	if (!ximalayaApi.checkLogin())
+	{
+		XimalayaLoginDialog dlgLogin(this);
+		if (dlgLogin.exec() == QDialog::Accepted)
+		{
+			UpdateLoginState();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	//XimalayaCreateLiveDialog dlgInfo(this);
+	//if (dlgInfo.exec() != QDialog::Accepted)
+	//{
+	//	return false;
+	//}
+	if (!ximalayaApi.liveCreate("直播", "24", &msg))
+	{
+		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveCreateFailed"), msg);
+		return false;
+	}
+	if (!ximalayaApi.liveGetPushUrl(&msg))
+	{
+		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
+		return false;
+	}
+	QJsonObject result;
+	if (!ximalayaApi.liveStart(&result, &msg))
+	{
+		int ret = result["ret"].toInt();
+		if (ret == 2914)
+		{
+			//如果已有直播，强制关闭后重试
+			ximalayaApi.liveStop("");
+			if (!ximalayaApi.liveStart(&result, &msg))
+			{
+				QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+				return false;
+			}
+		}
+		else
+		{
+			QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+			return false;
+		}
+	}
+	QSettings settings("Ximalaya", "obs");
+	QString server = settings.value("server").toString();
+	QString key = settings.value("key").toString();
+
+	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
+	return true;
+}
+
+bool OBSBasic::XimalayaLiveStop()
+{
+	QSettings settings("Ximalaya", "obs");
+	if (settings.contains("liveId"))
+	{
+		QString liveId = settings.value("liveId").toString();
+		ximalayaApi.liveStop(liveId);
+	}
+	return true;
 }
 
 static const double scaled_vals[] =
@@ -2792,6 +2884,8 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 	if (!event->isAccepted())
 		return;
 
+	XimalayaLiveStop();
+
 	blog(LOG_INFO, SHUTDOWN_SEPARATOR);
 
 	if (updateCheckThread)
@@ -3819,6 +3913,8 @@ inline void OBSBasic::OnDeactivate()
 
 void OBSBasic::StopStreaming()
 {
+	XimalayaLiveStop();
+
 	SaveProject();
 
 	if (outputHandler->StreamingActive())
@@ -3836,6 +3932,8 @@ void OBSBasic::StopStreaming()
 
 void OBSBasic::ForceStopStreaming()
 {
+	XimalayaLiveStop();
+
 	SaveProject();
 
 	if (outputHandler->StreamingActive())
@@ -4213,8 +4311,6 @@ void OBSBasic::ReplayBufferStop(int code)
 
 void OBSBasic::on_streamButton_clicked()
 {
-    XimalayaApi api;
-
 	if (outputHandler->StreamingActive()) {
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",
 				"WarnBeforeStoppingStream");
@@ -4231,10 +4327,9 @@ void OBSBasic::on_streamButton_clicked()
 
 		StopStreaming();
 
-                //api.liveStop();
 	} else {
-
-
+		if (!XimalayaLiveStart())
+			return;
 		
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",
 				"WarnBeforeStartingStream");
@@ -4268,11 +4363,10 @@ void OBSBasic::on_settingsButton_clicked()
 
 void OBSBasic::on_btnLogin_clicked()
 {
-	XimalayaApi api;
-	QString msg;
-	if (!api.loginXimalaya(&msg))
+	XimalayaLoginDialog dlg(this);
+	if (dlg.exec() == QDialog::Accepted)
 	{
-		QMessageBox::warning(this, "登录失败", msg);
+		UpdateLoginState();
 	}
 }
 
@@ -4280,32 +4374,7 @@ void OBSBasic::on_btnLogout_clicked()
 {
 	XimalayaApi api;
 	api.logout();
-}
-
-void OBSBasic::on_btnLiveCreate_clicked()
-{
-	XimalayaApi api;
-	QString msg;
-	if (!api.checkLogin(&msg))
-	{
-		QMessageBox::warning(this, "登录失败", msg);
-		return;
-	}
-	QString server;
-	QString key;
-	if(!api.liveStart(&server, &key, &msg))
-	{
-		QMessageBox::warning(this, "创建直播失败", msg);
-		return;
-	}
-
-	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
-}
-
-void OBSBasic::on_btnLiveStop_clicked()
-{
-	XimalayaApi api;
-	api.liveStop();
+	UpdateLoginState();
 }
 
 void OBSBasic::on_actionWebsite_triggered()
@@ -4813,8 +4882,8 @@ void OBSBasic::UpdateTitleBar()
 	if (App()->IsPortableMode())
 		name << " - Portable Mode";
 
-	name << " - " << Str("TitleBar.Profile") << ": " << profile;
-	name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
+	//name << " - " << Str("TitleBar.Profile") << ": " << profile;
+	//name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
 
 	setWindowTitle(QT_UTF8(name.str().c_str()));
 }

@@ -1,22 +1,22 @@
 #include "obs-app.hpp"
-#include "ximalaya-login-dialog.hpp"
-#include "ui_XimalayaLoginDialog.h"
+#include "ximalaya-create-live-dialog.hpp"
+#include "ui_XimalayaCreateLiveDialog.h"
 #include "ximalayaapi.hpp"
 #include <QMessageBox>
 
-XimalayaLoginDialog::XimalayaLoginDialog(QWidget *parent) :
+XimalayaCreateLiveDialog::XimalayaCreateLiveDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::XimalayaLoginDialog)
+    ui(new Ui::XimalayaCreateLiveDialog)
 {
     ui->setupUi(this);
 }
 
-XimalayaLoginDialog::~XimalayaLoginDialog()
+XimalayaCreateLiveDialog::~XimalayaCreateLiveDialog()
 {
     delete ui;
 }
 
-void XimalayaLoginDialog::on_btnLogin_clicked()
+void XimalayaCreateLiveDialog::on_btnLogin_clicked()
 {
     XimalayaApi api;
 	QString msg;

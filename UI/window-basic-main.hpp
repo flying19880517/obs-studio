@@ -44,6 +44,8 @@ class QNetworkReply;
 
 #include "ui_OBSBasic.h"
 
+#include "ximalayaapi.hpp"
+
 #define DESKTOP_AUDIO_1 Str("DesktopAudioDevice1")
 #define DESKTOP_AUDIO_2 Str("DesktopAudioDevice2")
 #define AUX_AUDIO_1     Str("AuxAudioDevice1")
@@ -182,8 +184,11 @@ private:
 	void          CreateHotkeys();
 	void          ClearHotkeys();
 
-        bool          InitService();
-        bool          UpdateService(const char *server, const char *key);
+    bool          InitService();
+    bool          UpdateService(const char *server, const char *key);
+	bool          UpdateLoginState();
+	bool          XimalayaLiveStart();
+	bool          XimalayaLiveStop();
 
 	bool          InitBasicConfigDefaults();
 	bool          InitBasicConfig();
@@ -543,8 +548,6 @@ private slots:
 
 	void on_btnLogin_clicked();
 	void on_btnLogout_clicked();
-	void on_btnLiveCreate_clicked();
-	void on_btnLiveStop_clicked();
 
 	void on_actionWebsite_triggered();
 
@@ -626,4 +629,6 @@ public:
 
 private:
 	std::unique_ptr<Ui::OBSBasic> ui;
+
+	XimalayaApi ximalayaApi;
 };

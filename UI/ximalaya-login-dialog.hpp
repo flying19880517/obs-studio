@@ -3,20 +3,20 @@
 #include <QDialog>
 
 namespace Ui {
-class LoginDialog;
+class XimalayaLoginDialog;
 }
 
-class LoginDialog : public QDialog
+class XimalayaLoginDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoginDialog(QWidget *parent = 0);
-    ~LoginDialog();
+    explicit XimalayaLoginDialog(QWidget *parent = 0);
+    ~XimalayaLoginDialog();
 
 private slots:
     void on_btnLogin_clicked();
 
 private:
-    Ui::LoginDialog *ui;
+    Ui::XimalayaLoginDialog *ui;
 };

@@ -22,6 +22,7 @@ public:
 
     QJsonObject postXimalaya(const QUrl &url, const QByteArray &data);
 
+	bool checkXimalayaResult(QJsonObject result);
 signals:
 
 public slots:
@@ -35,4 +36,10 @@ private:
     QNetworkReply *post(const QNetworkRequest &request, const QByteArray &data);
 
     QNetworkRequest getXimalayaRequest(const QUrl &url = QUrl());
+
+	QString envId = "1";
+	QString ver = XIMALAYA_VERSION;
+	QString userAgent;
+	QString deviceId;
+
 };

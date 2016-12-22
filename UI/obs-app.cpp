@@ -892,7 +892,8 @@ string OBSApp::GetVersionString() const
 	stringstream ver;
 
 #ifdef HAVE_OBSCONFIG_H
-	ver << OBS_VERSION;
+	//ver << OBS_VERSION;
+	ver << XIMALAYA_VERSION;
 #else
 	ver <<  LIBOBS_API_MAJOR_VER << "." <<
 		LIBOBS_API_MINOR_VER << "." <<
