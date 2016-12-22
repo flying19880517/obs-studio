@@ -5,7 +5,10 @@
 
 XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
 {
-
+#if DEBUG
+	baseUrl = "http://mobile.test.ximalaya.com";
+	flyUrl = "http://192.168.3.131:2900/fly";
+#endif
 }
 
 //XimalayaApi api;
@@ -29,7 +32,7 @@ XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
 
 bool XimalayaApi::login(QString username, QString password, QString *msg)
 {
-	//        QJsonObject result = requests.getXimalaya(QUrl("http://mobile.ximalaya.com/passport/token/login"));
+	//        QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/passport/token/login"));
 	//        if(result.isEmpty())
 	//        {
 	//            QMessageBox::warning(this,tr("warning"),tr("error"),QMessageBox::Yes);
@@ -48,7 +51,7 @@ bool XimalayaApi::login(QString username, QString password, QString *msg)
 	data.append("&password=");
 	data.append(password);
 
-	QJsonObject result = requests.postXimalaya(QUrl("http://mobile.test.ximalaya.com/mobile/login"), data);
+	QJsonObject result = requests.postXimalaya(QUrl(baseUrl + "/mobile/login"), data);
 	if (requests.checkXimalayaResult(result))
 	{
 		//result.insert("uid","12228");
@@ -73,7 +76,7 @@ bool XimalayaApi::logout()
 	QSettings settings("Ximalaya", "obs");
 	if (settings.contains("token"))
 	{
-		requests.getXimalaya(QUrl("http://mobile.test.ximalaya.com/mobile/logout"));
+		requests.getXimalaya(QUrl(baseUrl + "/mobile/logout"));
 
 		settings.remove("uid");
 		settings.remove("token");
@@ -92,7 +95,7 @@ bool XimalayaApi::liveCreate(QString title, QString categoryId, QString *msg)
 	data.append("&create=-1&permissionType=1&categoryId=");
 	data.append(categoryId);
 
-	QJsonObject result = requests.postXimalaya(QUrl("http://mobile.test.ximalaya.com/lamia/v1/live/record/create"), data);
+	QJsonObject result = requests.postXimalaya(QUrl(baseUrl + "/lamia/v1/live/record/create"), data);
 	if (requests.checkXimalayaResult(result))
 	{
 		QJsonObject jsonCreate = result["data"].toObject();
@@ -117,7 +120,7 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
 	QString liveId = settings.value("liveId").toString();
 	QString roomId = settings.value("roomId").toString();
 
-	QUrl url("http://192.168.3.131:2900/fly");
+	QUrl url(flyUrl);
 	QUrlQuery query;
 	query.addQueryItem("anchorId", uid);
 	query.addQueryItem("liveId", liveId);
@@ -160,7 +163,7 @@ bool XimalayaApi::liveStart(QJsonObject *result, QString *msg)
 	start.append(liveId);
 	start.append("&roomId=");
 	start.append(roomId);
-	*result = requests.postXimalaya(QUrl("http://mobile.test.ximalaya.com/lamia/v1/live/record/start"), start);
+	*result = requests.postXimalaya(QUrl(baseUrl + "/lamia/v1/live/record/start"), start);
 	if (requests.checkXimalayaResult(*result))
 	{
 		return true;
@@ -182,7 +185,7 @@ bool XimalayaApi::liveStop(QString liveId)
 		stop.append("id=");
 		stop.append(liveId);
 	}
-	requests.postXimalaya(QUrl("http://mobile.test.ximalaya.com/lamia/v1/live/record/stop"), stop);
+	requests.postXimalaya(QUrl(baseUrl + "/lamia/v1/live/record/stop"), stop);
 	if (liveId.length() > 0) 
 	{
 		settings.remove("liveId");
@@ -196,7 +199,7 @@ bool XimalayaApi::checkLogin()
 	QSettings settings("Ximalaya", "obs");
 	if (!settings.contains("token"))
 		return false;
-	QJsonObject result = requests.getXimalaya(QUrl("http://mobile.test.ximalaya.com/mobile/homePage"));
+	QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/mobile/homePage"));
 
 	if (requests.checkXimalayaResult(result))
 	{
@@ -204,5 +207,33 @@ bool XimalayaApi::checkLogin()
 		return true;
 	}
 	return settings.contains("token");
+}
+
+bool XimalayaApi::liveMine(QJsonObject * result, QString * msg)
+{
+	*result = requests.getXimalaya(QUrl(baseUrl + "/lamia/v1/live/category"));
+	if (requests.checkXimalayaResult(*result))
+	{
+		return true;
+	}
+	if ((*result).contains("msg"))
+		*msg = (*result)["msg"].toString();
+	else
+		*msg = QTStr("Ximalaya.Api.LiveStartFailed");
+	return false;
+}
+
+bool XimalayaApi::liveCategory(QJsonObject * result, QString * msg)
+{
+	*result = requests.getXimalaya(QUrl(baseUrl + "/lamia/v1/live/category"));
+	if (requests.checkXimalayaResult(*result))
+	{
+		return true;
+	}
+	if ((*result).contains("msg"))
+		*msg = (*result)["msg"].toString();
+	else
+		*msg = QTStr("Ximalaya.Api.LiveStartFailed");
+	return false;
 }
 

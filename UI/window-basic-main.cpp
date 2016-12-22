@@ -876,11 +876,18 @@ bool OBSBasic::XimalayaLiveStart()
 		int ret = result["ret"].toInt();
 		if (ret == 2914)
 		{
-			//如果已有直播，强制关闭后重试
-			ximalayaApi.liveStop("");
-			if (!ximalayaApi.liveStart(&result, &msg))
+			if (QMessageBox::warning(this, QTStr("Ximalaya.ConfirmStopLiveDialog.Title"), QTStr("Ximalaya.ConfirmStopLiveDialog.Content"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
 			{
-				QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+				//如果已有直播，强制关闭后重试
+				ximalayaApi.liveStop("");
+				if (!ximalayaApi.liveStart(&result, &msg))
+				{
+					QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+					return false;
+				}
+			}
+			else
+			{
 				return false;
 			}
 		}

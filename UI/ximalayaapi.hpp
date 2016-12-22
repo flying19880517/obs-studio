@@ -18,9 +18,13 @@ public:
 	bool liveStart(QJsonObject *result, QString *msg);
 	bool liveStop(QString liveId);
     bool checkLogin();
+	bool liveMine(QJsonObject *result, QString *msg);
+	bool liveCategory(QJsonObject *result, QString *msg);
 signals:
 
 public slots:
 private:
     Requests requests;
+	QString baseUrl = "http://mobile.ximalaya.com";
+	QString flyUrl = "";
 };
