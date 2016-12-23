@@ -1385,10 +1385,12 @@ void OBSBasic::OBSInit()
 			"splitterBottom");
 
 	if (!top || !bottom) {
-		defSizes = ui->mainSplitter->sizes();
-		int total = defSizes[0] + defSizes[1];
-		defSizes[0] = total * 75 / 100;
-		defSizes[1] = total - defSizes[0];
+		//defSizes = ui->mainSplitter->sizes();
+		//int total = defSizes[0] + defSizes[1];
+		//defSizes[0] = total * 75 / 100;
+		//defSizes[1] = total - defSizes[0];
+		defSizes.push_back(82);
+		defSizes.push_back(350);
 	} else {
 		defSizes.push_back(top);
 		defSizes.push_back(bottom);
