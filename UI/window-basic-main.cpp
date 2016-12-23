@@ -260,9 +260,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->sceneCollectionMenu->menuAction()->setVisible(false);
 	ui->menuTools->menuAction()->setVisible(false);
 
-	ui->modeSwitch->setVisible(false);
-
-	ui->mainSplitter->setOpaqueResize(false);
+        ui->modeSwitch->setVisible(false);
 
 	UpdateLoginState();
 }
@@ -899,6 +897,9 @@ bool OBSBasic::XimalayaLiveStart()
 	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
 
 	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
+
+	ui->btnLogout->setDisabled(true);
+	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg(settings.value("liveTitle").toString()));
 	return true;
 }
 
@@ -910,6 +911,9 @@ bool OBSBasic::XimalayaLiveStop()
 		QString liveId = settings.value("liveId").toString();
 		ximalayaApi.liveStop(liveId);
 	}
+
+	ui->btnLogout->setDisabled(false);
+	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.NoLive"));
 	return true;
 }
 
