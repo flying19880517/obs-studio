@@ -897,6 +897,8 @@ bool OBSBasic::XimalayaLiveStart()
 	QString key = settings.value("key").toString();
 
 	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
+
+	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
 	return true;
 }
 
