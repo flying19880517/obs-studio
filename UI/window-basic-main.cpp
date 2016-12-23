@@ -1021,10 +1021,10 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_string(basicConfig, "AdvOut", "FFFilePath",
 			GetDefaultVideoSavePath().c_str());
 	config_set_default_string(basicConfig, "AdvOut", "FFExtension", "mp4");
-	config_set_default_uint  (basicConfig, "AdvOut", "FFVBitrate", 2500);
+	config_set_default_uint  (basicConfig, "AdvOut", "FFVBitrate", 16);
 	config_set_default_bool  (basicConfig, "AdvOut", "FFUseRescale",
 			false);
-	config_set_default_uint  (basicConfig, "AdvOut", "FFABitrate", 160);
+	config_set_default_uint  (basicConfig, "AdvOut", "FFABitrate", 192);
 	config_set_default_uint  (basicConfig, "AdvOut", "FFAudioTrack", 1);
 
 	config_set_default_uint  (basicConfig, "AdvOut", "Track1Bitrate", 160);
