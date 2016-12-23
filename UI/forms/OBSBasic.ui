@@ -99,7 +99,7 @@
            <item row="0" column="2">
             <widget class="QLabel" name="lblNickname">
              <property name="text">
-              <string>Ximalaya.Main.</string>
+              <string/>
              </property>
             </widget>
            </item>
