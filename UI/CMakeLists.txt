@@ -95,6 +95,7 @@ set(obs_SOURCES
 	ximalayaapi.cpp
 	ximalaya-login-dialog.cpp
 	ximalaya-create-live-dialog.cpp
+	ximalaya-upload-to-album-dialog.cpp
 	obs-app.cpp
 	api-interface.cpp
 	window-basic-main.cpp
@@ -142,6 +143,7 @@ set(obs_HEADERS
 	ximalayaapi.hpp
 	ximalaya-login-dialog.hpp
 	ximalaya-create-live-dialog.hpp
+	ximalaya-upload-to-album-dialog.hpp
 	obs-app.hpp
 	platform.hpp
 	window-main.hpp
@@ -187,6 +189,7 @@ set(obs_HEADERS
 set(obs_UI
 	forms/XimalayaLoginDialog.ui
 	forms/XimalayaCreateLiveDialog.ui
+	forms/XimalayaUploadToAlbumDialog.ui
 	forms/NameDialog.ui
 	forms/OBSLicenseAgreement.ui
 	forms/OBSLogReply.ui

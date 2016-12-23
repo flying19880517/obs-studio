@@ -11,25 +11,6 @@ XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
 #endif
 }
 
-//XimalayaApi api;
-//QString msg;
-//if (!api.loginXimalaya(&msg))
-//{
-//	QMessageBox::warning(this, "登录失败", msg);
-//}
-//bool XimalayaApi::checkLogin(QString *msg)
-//{
-//	QSettings settings("Ximalaya", "obs");
-//	if (settings.contains("token"))
-//	{
-//		if (getHomePage(msg))
-//		{
-//			return true;
-//		}
-//	}
-//	return loginXimalaya(msg);
-//}
-
 bool XimalayaApi::login(QString username, QString password, QString *msg)
 {
     //        QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/passport/token/login"));
@@ -54,9 +35,6 @@ bool XimalayaApi::login(QString username, QString password, QString *msg)
     QJsonObject result = requests.postXimalaya(QUrl(baseUrl + "/mobile/login"), data);
     if (requests.checkXimalayaResult(result))
     {
-        //result.insert("uid","12228");
-        //result.insert("token","9fd8ab5c0d32304e62089610cfb89cb68589");
-        //result.insert("nickname","Lionheart");
         QSettings settings("Ximalaya", "obs");
         settings.setValue("uid", result["uid"].toVariant().toString());
         settings.setValue("token", result["token"].toString());
@@ -276,7 +254,7 @@ bool XimalayaApi::liveGetCurrentLiving(QJsonObject *result, QString *msg)
 
 bool XimalayaApi::getUploadAlbums(QJsonObject *result, QString *msg)
 {
-    *result = requests.getXimalaya(QUrl(baseUrl + "/mobile/api1/upload/album"));
+    *result = requests.getXimalaya(QUrl(baseUrl + "/mobile/api1/upload/albums"));
     if (requests.checkXimalayaResult(*result))
     {
         return true;

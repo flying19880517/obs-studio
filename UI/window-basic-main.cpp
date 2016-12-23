@@ -63,6 +63,7 @@
 #include "ximalayaapi.hpp"
 #include "ximalaya-login-dialog.hpp"
 #include "ximalaya-create-live-dialog.hpp"
+#include "ximalaya-upload-to-album-dialog.hpp"
 
 using namespace std;
 
@@ -253,6 +254,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->sourcesLabel->setVisible(false);
 	ui->sourcesFrame->setVisible(false);
 	ui->preview->setVisible(false);
+	ui->exitButton->setVisible(false);
 
 	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
 	ui->viewMenu->menuAction()->setVisible(false);
@@ -910,6 +912,10 @@ bool OBSBasic::XimalayaLiveStop()
 	{
 		QString liveId = settings.value("liveId").toString();
 		ximalayaApi.liveStop(liveId);
+
+		XimalayaUploadToAlbumDialog dlgSave(this);
+        dlgSave.liveId = liveId;
+		dlgSave.exec();
 	}
 
 	ui->btnLogout->setDisabled(false);
