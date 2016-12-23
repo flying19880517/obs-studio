@@ -2192,6 +2192,7 @@ void OBSBasic::TimedCheckForUpdates()
 
 void OBSBasic::CheckForUpdates()
 {
+	return;
 #ifdef UPDATE_SPARKLE
 	trigger_sparkle_update();
 #else
