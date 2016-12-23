@@ -4387,7 +4387,7 @@ void OBSBasic::on_btnLogout_clicked()
 
 void OBSBasic::on_actionWebsite_triggered()
 {
-	QUrl url = QUrl("https://obsproject.com", QUrl::TolerantMode);
+	QUrl url = QUrl("http://www.ximalaya.com", QUrl::TolerantMode);
 	QDesktopServices::openUrl(url);
 }
 

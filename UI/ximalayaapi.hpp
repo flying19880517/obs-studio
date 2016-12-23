@@ -20,6 +20,10 @@ public:
     bool checkLogin();
     bool liveMine(QJsonObject *result, QString *msg);
     bool liveCategory(QJsonObject *result, QString *msg);
+    bool liveSave(QString liveId, QString albumId, QString *msg);
+    bool liveGetCurrentLiving(QJsonObject *result, QString *msg);
+
+    bool getUploadAlbums(QJsonObject *result, QString *msg);
 signals:
 
 public slots:

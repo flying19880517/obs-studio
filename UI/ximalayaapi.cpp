@@ -191,9 +191,9 @@ bool XimalayaApi::liveStop(QString liveId)
     {
         settings.remove("liveId");
         settings.remove("roomId");
-		settings.remove("liveTitle");
-		settings.remove("server");
-		settings.remove("key");
+        settings.remove("liveTitle");
+        settings.remove("server");
+        settings.remove("key");
     }
     return true;
 }
@@ -238,6 +238,53 @@ bool XimalayaApi::liveCategory(QJsonObject * result, QString * msg)
         *msg = (*result)["msg"].toString();
     else
         *msg = QTStr("Ximalaya.Api.LiveStartFailed");
+    return false;
+}
+
+bool XimalayaApi::liveSave(QString liveId, QString albumId, QString *msg)
+{
+    QByteArray data;
+    data.append("id=");
+    data.append(liveId);
+    data.append("&albumId=");
+    data.append(albumId);
+    QJsonObject result = requests.postXimalaya(QUrl(baseUrl+"/lamia/v1/live/record/demand/save"), data);
+    if(requests.checkXimalayaResult(result))
+    {
+        return true;
+    }
+    if (result.contains("msg"))
+        *msg = result["msg"].toString();
+    else
+        *msg = QTStr("Ximalaya.Api.LiveSaveFailed");
+    return false;
+}
+
+bool XimalayaApi::liveGetCurrentLiving(QJsonObject *result, QString *msg)
+{
+    *result = requests.getXimalaya(QUrl(baseUrl + "/lamia/v2/record/living"));
+    if (requests.checkXimalayaResult(*result))
+    {
+        return true;
+    }
+    if ((*result).contains("msg"))
+        *msg = (*result)["msg"].toString();
+    else
+        *msg = QTStr("Ximalaya.Api.GetCurrentLivingFailed");
+    return false;
+}
+
+bool XimalayaApi::getUploadAlbums(QJsonObject *result, QString *msg)
+{
+    *result = requests.getXimalaya(QUrl(baseUrl + "/mobile/api1/upload/album"));
+    if (requests.checkXimalayaResult(*result))
+    {
+        return true;
+    }
+    if ((*result).contains("msg"))
+        *msg = (*result)["msg"].toString();
+    else
+        *msg = QTStr("Ximalaya.Api.GetUploadAlbumsFailed");
     return false;
 }
 
