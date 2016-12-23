@@ -860,11 +860,6 @@ bool OBSBasic::XimalayaLiveStart()
 	{
 		return false;
 	}
-	if (!ximalayaApi.liveGetPushUrl(&msg))
-	{
-		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
-		return false;
-	}
 	QJsonObject result;
 	if (!ximalayaApi.liveStart(&result, &msg))
 	{
@@ -891,6 +886,11 @@ bool OBSBasic::XimalayaLiveStart()
 			QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
 			return false;
 		}
+	}
+	if (!ximalayaApi.liveGetPushUrl(&msg))
+	{
+		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
+		return false;
 	}
 	QSettings settings("Ximalaya", "obs");
 	QString server = settings.value("server").toString();

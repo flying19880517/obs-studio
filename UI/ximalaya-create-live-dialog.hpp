@@ -16,10 +16,17 @@ public:
     ~XimalayaCreateLiveDialog();
 
 private slots:
+    void on_btnContinue_clicked();
+    void on_btnWaiting_clicked();
     void on_btnCreateLive_clicked();
+    void SelectLive(QJsonObject model);
 
 private:
     Ui::XimalayaCreateLiveDialog *ui;
 
-	XimalayaApi ximalayaApi;
+    XimalayaApi ximalayaApi;
+    QSettings *settings;
+
+    QJsonArray livingRecords;
+    QJsonArray waitingRecords;
 };

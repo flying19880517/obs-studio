@@ -1,5 +1,6 @@
 #pragma once
 
+#include "obs-app.hpp"
 #include <QObject>
 #include <QtNetwork>
 #include <QUrl>
@@ -38,7 +39,7 @@ private:
     QNetworkRequest getXimalayaRequest(const QUrl &url = QUrl());
 
 	QString envId = "1";
-	QString ver = XIMALAYA_VERSION;
+	QString ver = OBS_VERSION;
 	QString userAgent;
 	QString deviceId;
 
