@@ -191,6 +191,9 @@ bool XimalayaApi::liveStop(QString liveId)
     {
         settings.remove("liveId");
         settings.remove("roomId");
+		settings.remove("liveTitle");
+		settings.remove("server");
+		settings.remove("key");
     }
     return true;
 }
