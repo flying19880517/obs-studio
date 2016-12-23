@@ -187,7 +187,7 @@ private:
     bool          InitService();
     bool          UpdateService(const char *server, const char *key);
 	bool          UpdateLoginState();
-	bool          XimalayaLiveStart();
+	bool          XimalayaLiveStart(bool skipSelect);
 	bool          XimalayaLiveStop();
 
 	bool          InitBasicConfigDefaults();
@@ -631,4 +631,5 @@ private:
 	std::unique_ptr<Ui::OBSBasic> ui;
 
 	XimalayaApi ximalayaApi;
+	QSettings *settings;
 };

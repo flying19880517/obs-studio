@@ -262,9 +262,9 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->sceneCollectionMenu->menuAction()->setVisible(false);
 	ui->menuTools->menuAction()->setVisible(false);
 
-        ui->modeSwitch->setVisible(false);
+    ui->modeSwitch->setVisible(false);
 
-	UpdateLoginState();
+	settings = new QSettings("Ximalaya", "obs");
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -840,7 +840,7 @@ bool OBSBasic::UpdateLoginState()
 	return true;
 }
 
-bool OBSBasic::XimalayaLiveStart()
+bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 {
 	QString msg;
 	if (!ximalayaApi.checkLogin())
@@ -855,10 +855,13 @@ bool OBSBasic::XimalayaLiveStart()
 			return false;
 		}
 	}
-	XimalayaCreateLiveDialog dlgInfo(this);
-	if (dlgInfo.exec() != QDialog::Accepted)
+	if (!skipSelect)
 	{
-		return false;
+		XimalayaCreateLiveDialog dlgInfo(this);
+		if (dlgInfo.exec() != QDialog::Accepted)
+		{
+			return false;
+		}
 	}
 	QJsonObject result;
 	if (!ximalayaApi.liveStart(&result, &msg))
@@ -1394,6 +1397,29 @@ void OBSBasic::OBSInit()
 	ui->mainSplitter->setSizes(defSizes);
 
 	SystemTray(true);
+
+
+
+    UpdateLoginState();
+    QJsonObject result;
+    QString msg;
+    if (ximalayaApi.liveGetCurrentLiving(&result, &msg))
+    {
+        if (QMessageBox::information(this, QTStr("Ximalaya.ContinueLiveDialog.Title"), QTStr("Ximalaya.ContinueLiveDialog.Content"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+        {
+            QJsonObject data = result["data"].toObject();
+            QString liveId = data["id"].toVariant().toString();
+            QString roomId = data["roomId"].toVariant().toString();
+            QString liveTitle = data["name"].toString();
+            (*settings).setValue("liveId", liveId);
+            (*settings).setValue("roomId", roomId);
+            (*settings).setValue("liveTitle", liveTitle);
+			if (XimalayaLiveStart(true))
+			{
+				StartStreaming();
+			}
+        }
+    }
 }
 
 void OBSBasic::InitHotkeys()
@@ -4342,7 +4368,7 @@ void OBSBasic::on_streamButton_clicked()
 		StopStreaming();
 
 	} else {
-		if (!XimalayaLiveStart())
+		if (!XimalayaLiveStart(false))
 			return;
 		
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",

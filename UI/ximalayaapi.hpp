@@ -30,5 +30,5 @@ public slots:
 private:
     Requests requests;
     QString baseUrl = "http://mobile.ximalaya.com";
-    QString flyUrl = "";
+    QString flyUrl = "http://114.80.138.114:2900/fly";
 };

@@ -102,6 +102,7 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
     QUrl url(flyUrl);
     QUrlQuery query;
     query.addQueryItem("anchorId", uid);
+	query.addQueryItem("device", "obs");
     query.addQueryItem("liveId", liveId);
     query.addQueryItem("userId", uid);
     query.addQueryItem("userType", "anchor");
