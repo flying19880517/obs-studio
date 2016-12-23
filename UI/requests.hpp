@@ -38,6 +38,10 @@ private:
 
     QNetworkReply *post(const QNetworkRequest &request, const QByteArray &data);
 
+    QByteArray processStringResult(QNetworkReply *response);
+
+    QJsonObject processJsonResult(QByteArray data);
+
     QNetworkRequest getXimalayaRequest(const QUrl &url = QUrl());
 
     QString envId = "1";

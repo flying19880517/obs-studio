@@ -35,7 +35,7 @@ Requests::Requests(QObject *parent) : QObject(parent)
 #if DEBUG
     QNetworkProxy proxy;
     proxy.setType(QNetworkProxy::HttpProxy);
-    proxy.setHostName("192.168.62.43");
+	proxy.setHostName("192.168.62.43");
     proxy.setPort(8889);
     manager.setProxy(proxy);
 #endif
@@ -43,90 +43,31 @@ Requests::Requests(QObject *parent) : QObject(parent)
 
 QByteArray Requests::getString(const QNetworkRequest &request)
 {
-    QNetworkReply *response = get(request);
-    QByteArray result;
-    if (response->error() == QNetworkReply::NoError)
-    {
-        result = response->readAll();
-        qDebug(result);
-    }
-    else
-    {
-        qDebug() << "response code" << response->attribute(QNetworkRequest::HttpStatusCodeAttribute) << " content:" << response->readAll();
-    }
-    response->deleteLater();
-    return result;
+	QByteArray url("GET ");
+	url.append(request.url().toString());
+	blog(LOG_INFO, url);
+
+    return processStringResult(get(request));
 }
 
 QByteArray Requests::postString(const QNetworkRequest &request, const QByteArray &data)
 {
-    QNetworkReply *response = post(request, data);
-    QByteArray result;
-    if (response->error() == QNetworkReply::NoError)
-    {
-        result = response->readAll();
-        qDebug(result);
-    }
-    else
-    {
-        qDebug() << "response code" << response->attribute(QNetworkRequest::HttpStatusCodeAttribute) << " content:" << response->readAll();
-    }
-    response->deleteLater();
-    return result;
+	QByteArray url("POST ");
+	url.append(request.url().toString());
+	blog(LOG_INFO, url);
+	blog(LOG_INFO, data);
+
+    return processStringResult(post(request, data));
 }
 
 QJsonObject Requests::getJson(const QNetworkRequest &request)
 {
-    QByteArray str = getString(request);
-    QJsonObject result;
-    if (str.length() > 0)
-    {
-        QJsonParseError jsonpe;
-        QJsonDocument json = QJsonDocument::fromJson(str, &jsonpe);
-        if (jsonpe.error == QJsonParseError::NoError)
-        {
-            if (json.isObject())
-            {
-                result = json.object();
-            }
-            else
-            {
-                qDebug() << "error, shoud json object";
-            }
-        }
-        else
-        {
-            qDebug() << "error:" << jsonpe.errorString();
-        }
-    }
-    return result;
+    return processJsonResult(getString(request));
 }
 
 QJsonObject Requests::postJson(const QNetworkRequest &request, const QByteArray &data)
 {
-    QByteArray str = postString(request, data);
-    QJsonObject result;
-    if (str.length() > 0)
-    {
-        QJsonParseError jsonpe;
-        QJsonDocument json = QJsonDocument::fromJson(str, &jsonpe);
-        if (jsonpe.error == QJsonParseError::NoError)
-        {
-            if (json.isObject())
-            {
-                result = json.object();
-            }
-            else
-            {
-                qDebug() << "error, shoud json object";
-            }
-        }
-        else
-        {
-            qDebug() << "error:" << jsonpe.errorString();
-        }
-    }
-    return result;
+    return processJsonResult(postString(request, data));
 }
 
 QJsonObject Requests::getXimalaya(const QUrl &url)
@@ -177,6 +118,56 @@ QNetworkReply *Requests::post(const QNetworkRequest &request, const QByteArray &
     connect(response, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
     return response;
+}
+
+QByteArray Requests::processStringResult(QNetworkReply *response)
+{
+    QByteArray result;
+    if (response->error() == QNetworkReply::NoError)
+    {
+        result = response->readAll();
+        blog(LOG_INFO, result);
+    }
+    else
+    {
+		QByteArray msg;
+		msg.append("code:");
+		msg.append(response->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString());
+		msg.append(" content: ");
+		msg.append(response->readAll());
+        blog(LOG_ERROR, msg);
+    }
+    response->deleteLater();
+    return result;
+}
+
+QJsonObject Requests::processJsonResult(QByteArray data)
+{
+    QJsonObject result;
+    if (data.length() > 0)
+    {
+        QJsonParseError jsonpe;
+        QJsonDocument json = QJsonDocument::fromJson(data, &jsonpe);
+        if (jsonpe.error == QJsonParseError::NoError)
+        {
+            if (json.isObject())
+            {
+                result = json.object();
+            }
+            else
+            {
+                const char *msg("error, shoud json object");
+                blog(LOG_ERROR, msg);
+            }
+        }
+        else
+        {
+			QByteArray msg("error:");
+			msg.append(jsonpe.errorString());
+            blog(LOG_ERROR, msg);
+        }
+    }
+    return result;
 }
 
 QNetworkRequest Requests::getXimalayaRequest(const QUrl &url)
