@@ -3953,8 +3953,6 @@ inline void OBSBasic::OnDeactivate()
 
 void OBSBasic::StopStreaming()
 {
-	XimalayaLiveStop();
-
 	SaveProject();
 
 	if (outputHandler->StreamingActive())
@@ -3968,12 +3966,12 @@ void OBSBasic::StopStreaming()
 			"BasicWindow", "KeepRecordingWhenStreamStops");
 	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
 		StopRecording();
+
+	XimalayaLiveStop();
 }
 
 void OBSBasic::ForceStopStreaming()
 {
-	XimalayaLiveStop();
-
 	SaveProject();
 
 	if (outputHandler->StreamingActive())
@@ -3987,6 +3985,8 @@ void OBSBasic::ForceStopStreaming()
 			"BasicWindow", "KeepRecordingWhenStreamStops");
 	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
 		StopRecording();
+
+	XimalayaLiveStop();
 }
 
 void OBSBasic::StreamDelayStarting(int sec)
