@@ -6,6 +6,7 @@
 
 Requests::Requests(QObject *parent) : QObject(parent)
 {
+	settings = new QSettings("Ximalaya", "obs");
 #if DEBUG
 	envId = "4";
 #endif
@@ -23,7 +24,12 @@ Requests::Requests(QObject *parent) : QObject(parent)
 #else /* assume linux for the time being */
 	device = "linux";
 #endif
-	deviceId = "asdf";
+
+	if (!(*settings).contains("deviceId"))
+	{
+		(*settings).setValue("deviceId", QUuid::createUuid().toString());
+	}
+	deviceId = (*settings).value("deviceId").toString();
 	userAgent = "obs_v" + ver + "_c0 (" + device + ")";
 
 #if DEBUG

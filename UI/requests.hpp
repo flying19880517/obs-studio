@@ -32,6 +32,8 @@ private:
 
     QNetworkAccessManager manager;
 
+	QSettings *settings;
+
     QNetworkReply *get(const QNetworkRequest &request);
 
     QNetworkReply *post(const QNetworkRequest &request, const QByteArray &data);
