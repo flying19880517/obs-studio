@@ -631,5 +631,4 @@ private:
 	std::unique_ptr<Ui::OBSBasic> ui;
 
 	XimalayaApi ximalayaApi;
-	QSettings *settings;
 };

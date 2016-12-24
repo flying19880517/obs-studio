@@ -11,8 +11,6 @@ XimalayaCreateLiveDialog::XimalayaCreateLiveDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    settings = new QSettings("Ximalaya", "obs");
-
     QString msg;
     QJsonObject result;
 
@@ -106,7 +104,7 @@ void XimalayaCreateLiveDialog::on_btnCreateLive_clicked()
     QString categoryId = ui->ddlCategory->currentData().toString();
 
     if (title.length() == 0)
-        title = QTStr("Ximalaya.Api.DefaultLiveTitle").arg((*settings).value("nickname").toString());
+        title = QTStr("Ximalaya.Api.DefaultLiveTitle").arg((*ximalayaApi.requests.settings).value("nickname").toString());
     if (!ximalayaApi.liveCreate(title, categoryId, &msg))
     {
         QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveCreateFailed"), msg);
@@ -117,9 +115,9 @@ void XimalayaCreateLiveDialog::on_btnCreateLive_clicked()
 
 void XimalayaCreateLiveDialog::SelectLive(QJsonObject model)
 {
-    (*settings).setValue("liveId", model["id"].toVariant().toString());
-    (*settings).setValue("roomId", model["roomId"].toVariant().toString());
-    (*settings).setValue("liveTitle", model["name"].toString());
+    (*ximalayaApi.requests.settings).setValue("liveId", model["id"].toVariant().toString());
+    (*ximalayaApi.requests.settings).setValue("roomId", model["roomId"].toVariant().toString());
+    (*ximalayaApi.requests.settings).setValue("liveTitle", model["name"].toString());
 
     accept();
 }

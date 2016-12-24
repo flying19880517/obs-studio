@@ -35,10 +35,9 @@ bool XimalayaApi::login(QString username, QString password, QString *msg)
     QJsonObject result = requests.postXimalaya(QUrl(baseUrl + "/mobile/login"), data);
     if (requests.checkXimalayaResult(result))
     {
-        QSettings settings("Ximalaya", "obs");
-        settings.setValue("uid", result["uid"].toVariant().toString());
-        settings.setValue("token", result["token"].toString());
-        settings.setValue("nickname", result["nickname"].toString());
+        (*requests.settings).setValue("uid", result["uid"].toVariant().toString());
+        (*requests.settings).setValue("token", result["token"].toString());
+        (*requests.settings).setValue("nickname", result["nickname"].toString());
 
         return true;
     }
@@ -51,22 +50,19 @@ bool XimalayaApi::login(QString username, QString password, QString *msg)
 
 bool XimalayaApi::logout()
 {
-    QSettings settings("Ximalaya", "obs");
-    if (settings.contains("token"))
+    if ((*requests.settings).contains("token"))
     {
         requests.getXimalaya(QUrl(baseUrl + "/mobile/logout"));
 
-        settings.remove("uid");
-        settings.remove("token");
-        settings.remove("nickname");
+        (*requests.settings).remove("uid");
+        (*requests.settings).remove("token");
+        (*requests.settings).remove("nickname");
     }
     return true;
 }
 
 bool XimalayaApi::liveCreate(QString title, QString categoryId, QString *msg) 
 {
-    QSettings settings("Ximalaya", "obs");
-
     QByteArray data;
     data.append("name=");
     data.append(QUrl::toPercentEncoding(title));
@@ -79,9 +75,9 @@ bool XimalayaApi::liveCreate(QString title, QString categoryId, QString *msg)
         QJsonObject jsonCreate = result["data"].toObject();
         QString liveId = jsonCreate["id"].toVariant().toString();
         QString roomId = jsonCreate["roomId"].toVariant().toString();
-        settings.setValue("liveId", liveId);
-        settings.setValue("roomId", roomId);
-        settings.setValue("liveTitle", title);
+        (*requests.settings).setValue("liveId", liveId);
+        (*requests.settings).setValue("roomId", roomId);
+        (*requests.settings).setValue("liveTitle", title);
         return true;
     }
     if (result.contains("msg"))
@@ -93,11 +89,9 @@ bool XimalayaApi::liveCreate(QString title, QString categoryId, QString *msg)
 
 bool XimalayaApi::liveGetPushUrl(QString *msg)
 {
-    QSettings settings("Ximalaya", "obs");
-
-    QString uid = settings.value("uid").toString();
-    QString liveId = settings.value("liveId").toString();
-    QString roomId = settings.value("roomId").toString();
+    QString uid = (*requests.settings).value("uid").toString();
+    QString liveId = (*requests.settings).value("liveId").toString();
+    QString roomId = (*requests.settings).value("roomId").toString();
 
     QUrl url(flyUrl);
     QUrlQuery query;
@@ -115,13 +109,13 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
 
         QUrl realPushUrl(pushurl);
         QUrlQuery realPushUrlQuery;
-        realPushUrlQuery.addQueryItem("token", settings.value("token").toString());
+        realPushUrlQuery.addQueryItem("token", (*requests.settings).value("token").toString());
         realPushUrlQuery.addQueryItem("userId", uid);
         realPushUrlQuery.addQueryItem("anchorId", uid);
         realPushUrl.setQuery(realPushUrlQuery);
 
-        settings.setValue("server", realPushUrl.toString());
-        settings.setValue("key", pushtoken);
+        (*requests.settings).setValue("server", realPushUrl.toString());
+        (*requests.settings).setValue("key", pushtoken);
         return true;
     }
     if (result.contains("msg"))
@@ -133,10 +127,8 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
 
 bool XimalayaApi::liveStart(QJsonObject *result, QString *msg)
 {
-    QSettings settings("Ximalaya", "obs");
-
-    QString liveId = settings.value("liveId").toString();
-    QString roomId = settings.value("roomId").toString();
+    QString liveId = (*requests.settings).value("liveId").toString();
+    QString roomId = (*requests.settings).value("roomId").toString();
 
     QByteArray start;
     start.append("id=");
@@ -157,7 +149,6 @@ bool XimalayaApi::liveStart(QJsonObject *result, QString *msg)
 
 bool XimalayaApi::liveStop(QString liveId)
 {
-    QSettings settings("Ximalaya", "obs");
     Requests requests;
     QByteArray stop;
     if (liveId.length() > 0)
@@ -168,28 +159,27 @@ bool XimalayaApi::liveStop(QString liveId)
     requests.postXimalaya(QUrl(baseUrl + "/lamia/v1/live/record/stop"), stop);
     if (liveId.length() > 0)
     {
-        settings.remove("liveId");
-        settings.remove("roomId");
-        settings.remove("liveTitle");
-        settings.remove("server");
-        settings.remove("key");
+        (*requests.settings).remove("liveId");
+        (*requests.settings).remove("roomId");
+        (*requests.settings).remove("liveTitle");
+        (*requests.settings).remove("server");
+        (*requests.settings).remove("key");
     }
     return true;
 }
 
 bool XimalayaApi::checkLogin()
 {
-    QSettings settings("Ximalaya", "obs");
-    if (!settings.contains("token"))
+    if (!(*requests.settings).contains("token"))
         return false;
     QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/mobile/homePage"));
 
     if (requests.checkXimalayaResult(result))
     {
-        settings.setValue("nickname", result["nickname"].toString());
+        (*requests.settings).setValue("nickname", result["nickname"].toString());
         return true;
     }
-    return settings.contains("token");
+    return (*requests.settings).contains("token");
 }
 
 bool XimalayaApi::liveMine(QJsonObject * result, QString * msg)

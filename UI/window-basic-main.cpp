@@ -263,8 +263,6 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->menuTools->menuAction()->setVisible(false);
 
     ui->modeSwitch->setVisible(false);
-
-	settings = new QSettings("Ximalaya", "obs");
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -823,13 +821,12 @@ bool OBSBasic::UpdateService(const char *server, const char *key)
 
 bool OBSBasic::UpdateLoginState()
 {
-	QSettings settings("Ximalaya", "obs");
 	if (ximalayaApi.checkLogin())
 	{
 		ui->btnLogin->setVisible(false);
 		ui->btnLogout->setVisible(true);
 		ui->lblNickname->setVisible(true);
-		ui->lblNickname->setText(settings.value("nickname").toString());
+		ui->lblNickname->setText((*ximalayaApi.requests.settings).value("nickname").toString());
 	}
 	else
 	{
@@ -895,25 +892,23 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
 		return false;
 	}
-	QSettings settings("Ximalaya", "obs");
-	QString server = settings.value("server").toString();
-	QString key = settings.value("key").toString();
+	QString server = (*ximalayaApi.requests.settings).value("server").toString();
+	QString key = (*ximalayaApi.requests.settings).value("key").toString();
 
 	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
 
 	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
 
 	ui->btnLogout->setDisabled(true);
-	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg(settings.value("liveTitle").toString()));
+	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
 	return true;
 }
 
 bool OBSBasic::XimalayaLiveStop()
 {
-	QSettings settings("Ximalaya", "obs");
-	if (settings.contains("liveId"))
+	if ((*ximalayaApi.requests.settings).contains("liveId"))
 	{
-		QString liveId = settings.value("liveId").toString();
+		QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
 		ximalayaApi.liveStop(liveId);
 
 		XimalayaUploadToAlbumDialog dlgSave(this);
@@ -1392,9 +1387,9 @@ void OBSBasic::OBSInit()
             QString liveId = data["id"].toVariant().toString();
             QString roomId = data["roomId"].toVariant().toString();
             QString liveTitle = data["name"].toString();
-            (*settings).setValue("liveId", liveId);
-            (*settings).setValue("roomId", roomId);
-            (*settings).setValue("liveTitle", liveTitle);
+            (*ximalayaApi.requests.settings).setValue("liveId", liveId);
+            (*ximalayaApi.requests.settings).setValue("roomId", roomId);
+            (*ximalayaApi.requests.settings).setValue("liveTitle", liveTitle);
 			if (XimalayaLiveStart(true))
 			{
 				StartStreaming();

@@ -32,13 +32,18 @@ Requests::Requests(QObject *parent) : QObject(parent)
     deviceId = (*settings).value("deviceId").toString();
     userAgent = "obs_v" + ver + "_c0 (" + device + ")";
 
-#if DEBUG
-    QNetworkProxy proxy;
-    proxy.setType(QNetworkProxy::HttpProxy);
-	proxy.setHostName("192.168.62.43");
-    proxy.setPort(8889);
-    manager.setProxy(proxy);
-#endif
+//#if DEBUG
+//    QNetworkProxy proxy;
+//    proxy.setType(QNetworkProxy::HttpProxy);
+//	proxy.setHostName("192.168.62.43");
+//    proxy.setPort(8889);
+//    manager.setProxy(proxy);
+//#endif
+}
+
+Requests::~Requests()
+{
+	delete settings;
 }
 
 QByteArray Requests::getString(const QNetworkRequest &request)

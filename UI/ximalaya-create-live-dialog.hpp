@@ -25,7 +25,6 @@ private:
     Ui::XimalayaCreateLiveDialog *ui;
 
     XimalayaApi ximalayaApi;
-    QSettings *settings;
 
     QJsonArray livingRecords;
     QJsonArray waitingRecords;

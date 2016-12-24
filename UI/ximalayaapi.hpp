@@ -3,7 +3,6 @@
 #include "requests.hpp"
 
 #include <QObject>
-#include <QSettings>
 
 class XimalayaApi : public QObject
 {
@@ -24,11 +23,12 @@ public:
     bool liveGetCurrentLiving(QJsonObject *result, QString *msg);
 
     bool getUploadAlbums(QJsonObject *result, QString *msg);
+
+	Requests requests;
 signals:
 
 public slots:
 private:
-    Requests requests;
     QString baseUrl = "http://mobile.ximalaya.com";
     QString flyUrl = "http://114.80.138.114:2900/fly";
 };

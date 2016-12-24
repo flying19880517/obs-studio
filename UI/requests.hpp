@@ -10,6 +10,7 @@ class Requests : public QObject
     Q_OBJECT
 public:
     explicit Requests(QObject *parent = 0);
+	~Requests();
 
     QByteArray getString(const QNetworkRequest &request);
 
@@ -24,6 +25,8 @@ public:
     QJsonObject postXimalaya(const QUrl &url, const QByteArray &data);
 
     bool checkXimalayaResult(QJsonObject result);
+
+	QSettings *settings;
 signals:
 
 public slots:
@@ -31,8 +34,6 @@ public slots:
 private:
 
     QNetworkAccessManager manager;
-
-    QSettings *settings;
 
     QNetworkReply *get(const QNetworkRequest &request);
 
