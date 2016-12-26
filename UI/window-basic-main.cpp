@@ -1358,7 +1358,7 @@ void OBSBasic::OBSInit()
 	int bottom = config_get_int(App()->GlobalConfig(), "BasicWindow",
 			"splitterBottom");
 
-	if (!top || !bottom) {
+	if (!top || !bottom || top > 82) {
 		//defSizes = ui->mainSplitter->sizes();
 		//int total = defSizes[0] + defSizes[1];
 		//defSizes[0] = total * 75 / 100;
