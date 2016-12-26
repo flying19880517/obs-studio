@@ -807,8 +807,12 @@ bool OBSBasic::UpdateService(const char *server, const char *key)
 {
         obs_data_t *settings = obs_service_get_settings(service);
 
-		obs_data_set_string(settings, "server", server);
-		obs_data_set_string(settings, "key", key);
+		obs_data_set_string(settings, "type", "rtmp_custom");
+		if(server)
+			obs_data_set_string(settings, "server", server);
+		if(key)
+			obs_data_set_string(settings, "key", key);
+		obs_data_set_bool(settings, "use_auth", false);
 
         service = obs_service_create("rtmp_custom", "default_service", settings,
                                      nullptr);
@@ -895,9 +899,11 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 	QString server = (*ximalayaApi.requests.settings).value("server").toString();
 	QString key = (*ximalayaApi.requests.settings).value("key").toString();
 
+	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
+	config_set_string(basicConfig, "Output", "Mode", "Simple");
+	config_set_uint(basicConfig, "SimpleOutput", "VBitrate", 16);
 	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
 
-	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
 
 	ui->btnLogout->setDisabled(true);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
