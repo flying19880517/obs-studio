@@ -5,10 +5,11 @@
 
 XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
 {
-#if DEBUG
-    baseUrl = "http://mobile.test.ximalaya.com";
-    flyUrl = "http://192.168.3.131:2900/fly";
-#endif
+	if (requests.isTest())
+	{
+		baseUrl = "http://mobile.test.ximalaya.com";
+		flyUrl = "http://192.168.3.131:2900/fly";
+	}
 }
 
 bool XimalayaApi::login(QString username, QString password, QString *msg)

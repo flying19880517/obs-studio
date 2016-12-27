@@ -7,9 +7,10 @@
 Requests::Requests(QObject *parent) : QObject(parent)
 {
     settings = new QSettings("Ximalaya", "obs");
-#if DEBUG
-    envId = "4";
-#endif
+	if (isTest())
+	{
+		envId = "4";
+	}
 
     QString device;
 #ifdef _WIN32
@@ -32,13 +33,7 @@ Requests::Requests(QObject *parent) : QObject(parent)
     deviceId = (*settings).value("deviceId").toString();
     userAgent = "obs_v" + ver + "_c0 (" + device + ")";
 
-//#if DEBUG
-//    QNetworkProxy proxy;
-//    proxy.setType(QNetworkProxy::HttpProxy);
-//	proxy.setHostName("192.168.62.43");
-//    proxy.setPort(8889);
-//    manager.setProxy(proxy);
-//#endif
+	setProxy();
 }
 
 Requests::~Requests()
@@ -105,6 +100,15 @@ bool Requests::checkXimalayaResult(QJsonObject result)
         return ret == 0;
     }
     return true;
+}
+
+bool Requests::isTest()
+{
+	if ((*settings).contains("test"))
+	{
+		return (*settings).value("test").toBool();
+	}
+	return false;
 }
 
 QNetworkReply *Requests::get(const QNetworkRequest &request)
@@ -191,4 +195,24 @@ QNetworkRequest Requests::getXimalayaRequest(const QUrl &url)
     req.setRawHeader("Cookie", cookie);
 
     return req;
+}
+
+bool Requests::setProxy()
+{
+	if ((*settings).contains("proxy"))
+	{
+		if ((*settings).value("proxy").toBool())
+		{
+			QString proxyHost = (*settings).value("proxyHost").toString();
+			int proxyPort = (*settings).value("proxyPort").toInt();
+
+			QNetworkProxy proxy;
+			proxy.setType(QNetworkProxy::HttpProxy);
+			proxy.setHostName(proxyHost);
+			proxy.setPort(proxyPort);
+			manager.setProxy(proxy);
+			return true;
+		}
+	}
+	return false;
 }

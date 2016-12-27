@@ -26,6 +26,8 @@ public:
 
     bool checkXimalayaResult(QJsonObject result);
 
+	bool isTest();
+
 	QSettings *settings;
 signals:
 
@@ -44,6 +46,8 @@ private:
     QJsonObject processJsonResult(QByteArray data);
 
     QNetworkRequest getXimalayaRequest(const QUrl &url = QUrl());
+
+	bool setProxy();
 
     QString envId = "1";
     QString ver = OBS_VERSION;
