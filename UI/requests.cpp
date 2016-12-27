@@ -6,7 +6,7 @@
 
 Requests::Requests(QObject *parent) : QObject(parent)
 {
-    settings = new QSettings("Ximalaya", "obs");
+    settings = new QSettings("XimalayaFM", "obs-studio");
 	if (isTest())
 	{
 		envId = "4";
