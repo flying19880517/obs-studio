@@ -6,27 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>720</width>
-    <height>400</height>
+    <width>363</width>
+    <height>215</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>720</width>
-    <height>400</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>720</width>
-    <height>400</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Ximalaya.CreateLiveDialog.Title</string>
@@ -47,14 +29,11 @@
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="btnContinue">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>60</height>
-          </size>
-         </property>
          <property name="text">
           <string>Ximalaya.CreateLiveDialog.ButtonContinue</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -70,14 +49,11 @@
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="btnWaiting">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>60</height>
-          </size>
-         </property>
          <property name="text">
           <string>Ximalaya.CreateLiveDialog.ButtonWaiting</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -103,20 +79,11 @@
        </item>
        <item row="3" column="0">
         <widget class="QPushButton" name="btnCreateLive">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>60</height>
-          </size>
-         </property>
          <property name="text">
           <string>Ximalaya.CreateLiveDialog.ButtonCreateLive</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -125,12 +92,6 @@
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="1">
            <widget class="QLineEdit" name="txtLiveTitle">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>60</height>
-             </size>
-            </property>
             <property name="placeholderText">
              <string>Ximalaya.CreateLiveDialog.LiveTitlePlaceHolder</string>
             </property>
@@ -147,14 +108,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QComboBox" name="ddlCategory">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>60</height>
-             </size>
-            </property>
-           </widget>
+           <widget class="QComboBox" name="ddlCategory"/>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="lblLiveTitle">

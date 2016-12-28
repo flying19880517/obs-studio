@@ -131,6 +131,25 @@ OBSBasic::OBSBasic(QWidget *parent)
 	setAcceptDrops(true);
 
 	ui->setupUi(this);
+
+	//Hide controls
+	ui->sceneTransitionsLabel->setVisible(false);
+	ui->transitionsContainer->setVisible(false);
+	ui->scenesLabel->setVisible(false);
+	ui->scenesFrame->setVisible(false);
+	ui->sourcesLabel->setVisible(false);
+	ui->sourcesFrame->setVisible(false);
+	ui->preview->setVisible(false);
+	ui->exitButton->setVisible(false);
+
+	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
+	ui->viewMenu->menuAction()->setVisible(false);
+	ui->profileMenu->menuAction()->setVisible(false);
+	ui->sceneCollectionMenu->menuAction()->setVisible(false);
+	ui->menuTools->menuAction()->setVisible(false);
+
+	ui->modeSwitch->setVisible(false);
+
 	ui->previewDisabledLabel->setVisible(false);
 
 	copyActionsDynamicProperties();
@@ -245,24 +264,6 @@ OBSBasic::OBSBasic(QWidget *parent)
 	addNudge(Qt::Key_Down, SLOT(NudgeDown()));
 	addNudge(Qt::Key_Left, SLOT(NudgeLeft()));
 	addNudge(Qt::Key_Right, SLOT(NudgeRight()));
-
-	//Hide controls
-	ui->sceneTransitionsLabel->setVisible(false);
-	ui->transitionsContainer->setVisible(false);
-	ui->scenesLabel->setVisible(false);
-	ui->scenesFrame->setVisible(false);
-	ui->sourcesLabel->setVisible(false);
-	ui->sourcesFrame->setVisible(false);
-	ui->preview->setVisible(false);
-	ui->exitButton->setVisible(false);
-
-	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
-	ui->viewMenu->menuAction()->setVisible(false);
-	ui->profileMenu->menuAction()->setVisible(false);
-	ui->sceneCollectionMenu->menuAction()->setVisible(false);
-	ui->menuTools->menuAction()->setVisible(false);
-
-    ui->modeSwitch->setVisible(false);
 }
 
 static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
@@ -1385,10 +1386,10 @@ void OBSBasic::OBSInit()
 	int bottom = config_get_int(App()->GlobalConfig(), "BasicWindow",
 			"splitterBottom");
 
-	if (!top || !bottom || top > 82) {
+	if (!top || !bottom || top > 42) {
 		defSizes = ui->mainSplitter->sizes();
 		int total = defSizes[0] + defSizes[1];
-		defSizes[0] = 82;
+		defSizes[0] = 42;
 		defSizes[1] = total - defSizes[0];
 	} else {
 		defSizes.push_back(top);
@@ -4812,9 +4813,9 @@ void OBSBasic::on_actionCenterToScreen_triggered()
 
 void OBSBasic::EnablePreviewDisplay(bool enable)
 {
-	obs_display_set_enabled(ui->preview->GetDisplay(), enable);
-	ui->preview->setVisible(enable);
-	ui->previewDisabledLabel->setVisible(!enable);
+	//obs_display_set_enabled(ui->preview->GetDisplay(), enable);
+	//ui->preview->setVisible(enable);
+	//ui->previewDisabledLabel->setVisible(!enable);
 }
 
 void OBSBasic::TogglePreview()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>402</height>
+    <width>312</width>
+    <height>186</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,12 +19,6 @@
    </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="btnSave">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>60</height>
-      </size>
-     </property>
      <property name="text">
       <string>Ximalaya.UploadToAlbumDialog.ButtonSave</string>
      </property>
