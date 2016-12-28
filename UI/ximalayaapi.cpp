@@ -150,7 +150,6 @@ bool XimalayaApi::liveStart(QJsonObject *result, QString *msg)
 
 bool XimalayaApi::liveStop(QString liveId)
 {
-    Requests requests;
     QByteArray stop;
     if (liveId.length() > 0)
     {

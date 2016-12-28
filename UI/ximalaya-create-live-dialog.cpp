@@ -20,11 +20,11 @@ XimalayaCreateLiveDialog::XimalayaCreateLiveDialog(QWidget *parent) :
         QMessageBox::critical(this, QTStr("Ximalaya.Api.GetMineLiveRecordsFailed"), msg);
         return;
     }
-    QJsonObject data = result["data"].toObject();
+    QJsonObject resultData = result["data"].toObject();
 
-    if (data.contains("waitingRecords") && data["waitingRecords"].toArray().count() > 0)
+    if (resultData.contains("waitingRecords") && resultData["waitingRecords"].toArray().count() > 0)
     {
-        waitingRecords = data["waitingRecords"].toArray();
+        waitingRecords = resultData["waitingRecords"].toArray();
         foreach(QJsonValue var, waitingRecords)
         {
             QJsonObject item = var.toObject();
@@ -39,9 +39,9 @@ XimalayaCreateLiveDialog::XimalayaCreateLiveDialog(QWidget *parent) :
         ui->tabWidget->removeTab(1);
     }
 
-    if (data.contains("livingRecords") && data["livingRecords"].toArray().count() > 0)
+    if (resultData.contains("livingRecords") && resultData["livingRecords"].toArray().count() > 0)
     {
-        livingRecords = data["livingRecords"].toArray();
+        livingRecords = resultData["livingRecords"].toArray();
         foreach(QJsonValue var, livingRecords)
         {
             QJsonObject item = var.toObject();
