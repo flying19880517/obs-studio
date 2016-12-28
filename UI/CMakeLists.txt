@@ -58,8 +58,8 @@ include_directories(${AGORARTC_INCLUDE_DIRS})
 add_definitions(${AGORARTC_DEFINITIONS})
 
 find_package(ssl QUIET)
-include_directories(${SSL_INCLUDE_DIR})
-add_definitions(${SSL_LIBRARIES})
+include_directories(${SSL_INCLUDE_DIRS})
+add_definitions(${SSL_DEFINITIONS})
 
 if(WIN32)
 	set(obs_PLATFORM_SOURCES
@@ -241,7 +241,7 @@ target_link_libraries(obs
 	obs-frontend-api
 	${LIBCURL_LIBRARIES}
 	${AGORARTC_LIBRARIES}
-	%{SSL_LIBRARIES}
+	${SSL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
 
 define_graphic_modules(obs)
