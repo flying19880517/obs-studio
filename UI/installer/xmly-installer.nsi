@@ -126,12 +126,15 @@ Function PreReqCheck
 		gotPatch:
 	${EndIf}
 
+FunctionEnd
+
+Function InsallLibs
 	ClearErrors
 	GetDLLVersion "MSVCR140.DLL" $R0 $R1
 	IfErrors vs2015Missing vs2015OK
 	vs2015Missing:
 		File "lib\vc_redist.x86.exe"
-		ExecWait '"$INSTDIR\lib\vc_redist.x86.exe" /quiet'
+		ExecWait '"$INSTDIR\lib\vc_redist.x86.exe" /install /passive /norestart'
 	vs2015OK:
 	ClearErrors
 
@@ -227,6 +230,7 @@ Section "$(LNG_MainProgram)" SecCore
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR"
 	File /r "data"
+	File /r "lib"
 	SetOutPath "$INSTDIR\bin"
 	File /r "bin\32bit"
 	SetOutPath "$INSTDIR\obs-plugins"
@@ -261,6 +265,7 @@ Section "$(LNG_MainProgram)" SecCore
 
 	StrCmp $outputErrors "yes" 0 +2
 		Call filesInUse
+	Call InsallLibs
 SectionEnd
 
 ;!ifdef FULL
