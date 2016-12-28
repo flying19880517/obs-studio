@@ -64,6 +64,8 @@
 #include "ximalaya-login-dialog.hpp"
 #include "ximalaya-create-live-dialog.hpp"
 #include "ximalaya-upload-to-album-dialog.hpp"
+#include "IAgoraRtcEngine.h"
+#include "IAgoraMediaEngine.h"
 
 using namespace std;
 
@@ -4418,6 +4420,30 @@ void OBSBasic::on_btnLogout_clicked()
 	api.logout();
 	UpdateLoginState();
 }
+agora::rtc::IRtcEngine *engine;
+QString channel;
+void OBSBasic::on_btnLink_clicked()
+{
+	if (engine == NULL)
+	{
+		engine = createAgoraRtcEngine();
+		agora::rtc::RtcEngineContext ctx;
+		ctx.appId = "4af59db04ebf416b8f70d6109b69445c";
+		(*engine).initialize(ctx);
+		(*engine).disableVideo();
+	}
+	if (channel.isEmpty())
+	{
+		channel = "lion";
+		int ret = (*engine).joinChannel(NULL, channel.toLocal8Bit().constData(), "", 0);
+	}
+	else
+	{
+		(*engine).leaveChannel();
+		channel = "";
+	}
+
+}
 
 void OBSBasic::on_actionWebsite_triggered()
 {
@@ -4916,9 +4942,10 @@ void OBSBasic::UpdateTitleBar()
 	const char *sceneCollection = config_get_string(App()->GlobalConfig(),
 			"Basic", "SceneCollection");
 
-	name << "OBS ";
-	if (previewProgramMode)
-		name << "Studio ";
+	//name << "OBS ";
+	//if (previewProgramMode)
+	//	name << "Studio ";
+	name << QTStr("Ximalaya.Main.AppName").toLocal8Bit().constData();
 
 	name << App()->GetVersionString();
 	if (App()->IsPortableMode())

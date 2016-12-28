@@ -44,7 +44,7 @@ if(NOT Qt5Widgets_FOUND)
 	endif()
 endif()
 
-find_package(Qt5Network)
+find_package(Qt5Network REQUIRED)
 
 include_directories(SYSTEM "obs-frontend-api")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/libobs")
@@ -52,6 +52,14 @@ include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/libobs")
 find_package(Libcurl REQUIRED)
 include_directories(${LIBCURL_INCLUDE_DIRS})
 add_definitions(${LIBCURL_DEFINITIONS})
+
+find_package(AgoraRTC REQUIRED)
+include_directories(${AGORARTC_INCLUDE_DIRS})
+add_definitions(${AGORARTC_DEFINITIONS})
+
+find_package(ssl QUIET)
+include_directories(${SSL_INCLUDE_DIR})
+add_definitions(${SSL_LIBRARIES})
 
 if(WIN32)
 	set(obs_PLATFORM_SOURCES
@@ -232,6 +240,8 @@ target_link_libraries(obs
 	Qt5::Network
 	obs-frontend-api
 	${LIBCURL_LIBRARIES}
+	${AGORARTC_LIBRARIES}
+	%{SSL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
 
 define_graphic_modules(obs)
