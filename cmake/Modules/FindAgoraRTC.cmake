@@ -56,9 +56,7 @@ find_library(AGORARTC_LIB
 		bin${_lib_suffix} bin
 		../lib${_lib_suffix} ../lib
 		../libs${_lib_suffix} ../libs
-		../bin${_lib_suffix} ../bin
-		"build/Win${_lib_suffix}/VC12/DLL Release - DLL Windows SSPI"
-		"../build/Win${_lib_suffix}/VC12/DLL Release - DLL Windows SSPI")
+		../bin${_lib_suffix} ../bin)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(AgoraRTC DEFAULT_MSG AGORARTC_LIB AGORARTC_INCLUDE_DIR)
