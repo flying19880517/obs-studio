@@ -33,6 +33,11 @@ void XimalayaUploadToAlbumDialog::on_btnSave_clicked()
     accept();
 }
 
+void XimalayaUploadToAlbumDialog::on_btnCancel_clicked()
+{
+    reject();
+}
+
 bool XimalayaUploadToAlbumDialog::LoadAlbums()
 {
     QString msg;
