@@ -29,9 +29,19 @@ XimalayaCreateLiveDialog::XimalayaCreateLiveDialog(QWidget *parent) :
         {
             QJsonObject item = var.toObject();
             QString name = item["name"].toString();
-            QString start = item["actualStartAt"].toVariant().toString();
-            QString title = QString("%1 (%2)").arg(name, QDateTime::fromTime_t(start.toUInt()).toString("yyyy-MM-dd HH:mm"));
-            ui->listWaiting->addItem(title);
+            QString start = item["startAt"].toVariant().toString();
+            bool ok;
+            uint timeT = start.toULongLong(&ok, 10) /1000;
+            if(ok)
+            {
+                QDateTime startAt = QDateTime::fromTime_t(timeT);
+                QString title = QString("%1 (%2)").arg(name, startAt.toString("yyyy-MM-dd HH:mm"));
+                ui->listWaiting->addItem(title);
+            }
+            else
+            {
+                ui->listWaiting->addItem(name);
+            }
         }
     }
     else
