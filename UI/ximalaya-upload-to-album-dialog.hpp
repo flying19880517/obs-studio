@@ -1,7 +1,6 @@
-#ifndef XIMALAYAUPLOADTOALBUMDIALOG_H
-#define XIMALAYAUPLOADTOALBUMDIALOG_H
+#pragma once
 
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 
 #include <QDialog>
 
@@ -31,5 +30,3 @@ private:
 
     bool LoadAlbums();
 };
-
-#endif // XIMALAYAUPLOADTOALBUMDIALOG_H

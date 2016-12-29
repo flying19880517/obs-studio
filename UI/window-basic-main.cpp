@@ -60,12 +60,12 @@
 #include <QScreen>
 #include <QWindow>
 
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 #include "ximalaya-login-dialog.hpp"
 #include "ximalaya-create-live-dialog.hpp"
 #include "ximalaya-upload-to-album-dialog.hpp"
 #include "IAgoraRtcEngine.h"
-#include "IAgoraMediaEngine.h"
+#include "ximalaya-agora-rtc-engine-event-handler.hpp"
 
 using namespace std;
 
@@ -4427,6 +4427,7 @@ void OBSBasic::on_btnLogout_clicked()
 	UpdateLoginState();
 }
 agora::rtc::IRtcEngine *engine;
+XimalayaAgoraRtcEngineEventHandler engineEventHandler;
 QString channel;
 void OBSBasic::on_btnLink_clicked()
 {
@@ -4435,17 +4436,26 @@ void OBSBasic::on_btnLink_clicked()
 		engine = createAgoraRtcEngine();
 		agora::rtc::RtcEngineContext ctx;
 		ctx.appId = "4af59db04ebf416b8f70d6109b69445c";
+        ctx.eventHandler = &engineEventHandler;
 		(*engine).initialize(ctx);
 		(*engine).disableVideo();
 	}
 	if (channel.isEmpty())
 	{
-		channel = "lion";
-		int ret = (*engine).joinChannel(NULL, channel.toLocal8Bit().constData(), "", 0);
+		QString c = (*ximalayaApi.requests.settings).value("uid").toString();
+		int ret = (*engine).joinChannel(NULL, c.toLocal8Bit().constData(), NULL, 0);
+		blog(LOG_INFO, "join ret:%d channel:%s", ret, c);
+		if (ret == 0)
+        {
+			channel = c;
+			ui->btnLink->setText(QTStr("Ximalaya.Main.DisconnectAgora"));
+        }
 	}
 	else
 	{
-		(*engine).leaveChannel();
+		int ret = (*engine).leaveChannel();
+		blog(LOG_INFO, "leave ret:%d", ret);
+		ui->btnLink->setText(QTStr("Ximalaya.Main.ConnectAgora"));
 		channel = "";
 	}
 

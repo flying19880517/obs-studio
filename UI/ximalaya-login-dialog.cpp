@@ -1,7 +1,7 @@
 #include "obs-app.hpp"
 #include "ximalaya-login-dialog.hpp"
 #include "ui_XimalayaLoginDialog.h"
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 #include <QMessageBox>
 
 XimalayaLoginDialog::XimalayaLoginDialog(QWidget *parent) :

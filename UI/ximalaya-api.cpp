@@ -1,6 +1,6 @@
 #include "obs-app.hpp"
 #include "ximalaya-login-dialog.hpp"
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 #include "requests.hpp"
 
 XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)

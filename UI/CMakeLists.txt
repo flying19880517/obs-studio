@@ -100,10 +100,11 @@ endif()
 set(obs_SOURCES
 	${obs_PLATFORM_SOURCES}
 	requests.cpp
-	ximalayaapi.cpp
+	ximalaya-api.cpp
 	ximalaya-login-dialog.cpp
 	ximalaya-create-live-dialog.cpp
 	ximalaya-upload-to-album-dialog.cpp
+	ximalaya-agora-rtc-engine-event-handler.cpp
 	obs-app.cpp
 	api-interface.cpp
 	window-basic-main.cpp
@@ -148,10 +149,11 @@ set(obs_SOURCES
 
 set(obs_HEADERS
 	requests.hpp
-	ximalayaapi.hpp
+	ximalaya-api.hpp
 	ximalaya-login-dialog.hpp
 	ximalaya-create-live-dialog.hpp
 	ximalaya-upload-to-album-dialog.hpp
+	ximalaya-agora-rtc-engine-event-handler.hpp
 	obs-app.hpp
 	platform.hpp
 	window-main.hpp

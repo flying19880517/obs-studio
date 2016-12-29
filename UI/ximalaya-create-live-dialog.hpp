@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 
 namespace Ui {
 class XimalayaCreateLiveDialog;

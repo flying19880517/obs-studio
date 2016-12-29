@@ -1,7 +1,7 @@
 #include "obs-app.hpp"
 #include "ximalaya-create-live-dialog.hpp"
 #include "ui_XimalayaCreateLiveDialog.h"
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 #include <QMessageBox>
 #include <QDateTime>
 

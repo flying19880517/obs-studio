@@ -44,7 +44,7 @@ class QNetworkReply;
 
 #include "ui_OBSBasic.h"
 
-#include "ximalayaapi.hpp"
+#include "ximalaya-api.hpp"
 
 #define DESKTOP_AUDIO_1 Str("DesktopAudioDevice1")
 #define DESKTOP_AUDIO_2 Str("DesktopAudioDevice2")
