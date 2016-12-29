@@ -142,15 +142,21 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->sourcesLabel->setVisible(false);
 	ui->sourcesFrame->setVisible(false);
 	ui->preview->setVisible(false);
+	ui->modeSwitch->setVisible(false);
 	ui->exitButton->setVisible(false);
-
 	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
 	ui->viewMenu->menuAction()->setVisible(false);
 	ui->profileMenu->menuAction()->setVisible(false);
 	ui->sceneCollectionMenu->menuAction()->setVisible(false);
 	ui->menuTools->menuAction()->setVisible(false);
-
-	ui->modeSwitch->setVisible(false);
+	ui->actionRemux->setVisible(false);
+	ui->actionShowSettingsFolder->setVisible(false);
+	ui->actionShowProfileFolder->setVisible(false);
+	ui->actionCheckForUpdates->setVisible(false);
+	if (!ximalayaApi.requests.isTest())
+	{
+		ui->btnLink->setVisible(false);
+	}
 
 	ui->previewDisabledLabel->setVisible(false);
 
@@ -4935,26 +4941,30 @@ void OBSBasic::OpenSceneProjector()
 
 void OBSBasic::UpdateTitleBar()
 {
-	stringstream name;
+	//stringstream name;
 
-	const char *profile = config_get_string(App()->GlobalConfig(),
-			"Basic", "Profile");
-	const char *sceneCollection = config_get_string(App()->GlobalConfig(),
-			"Basic", "SceneCollection");
+	//const char *profile = config_get_string(App()->GlobalConfig(),
+	//		"Basic", "Profile");
+	//const char *sceneCollection = config_get_string(App()->GlobalConfig(),
+	//		"Basic", "SceneCollection");
 
 	//name << "OBS ";
 	//if (previewProgramMode)
 	//	name << "Studio ";
-	name << QTStr("Ximalaya.Main.AppName").toLocal8Bit().constData();
 
-	name << App()->GetVersionString();
-	if (App()->IsPortableMode())
-		name << " - Portable Mode";
+	//name << App()->GetVersionString();
+	//if (App()->IsPortableMode())
+	//	name << " - Portable Mode";
 
 	//name << " - " << Str("TitleBar.Profile") << ": " << profile;
 	//name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
 
-	setWindowTitle(QT_UTF8(name.str().c_str()));
+	//setWindowTitle(QT_UTF8(name.str().c_str()));
+	QByteArray title;
+	title.append(QTStr("Ximalaya.Main.AppName"));
+	title.append(" ");
+	title.append(OBS_VERSION);
+	setWindowTitle(title);
 }
 
 int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const
