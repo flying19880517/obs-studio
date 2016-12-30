@@ -3,44 +3,53 @@
 #include "ximalaya-api.hpp"
 #include "requests.hpp"
 
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+
 XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
 {
-	if (requests.isTest())
-	{
-		baseUrl = "http://mobile.test.ximalaya.com";
-		flyUrl = "http://192.168.3.131:2900/fly";
-	}
+    if (requests.isTest())
+    {
+        baseUrl = "http://mobile.test.ximalaya.com";
+        flyUrl = "http://192.168.3.131:2900/fly";
+    }
 }
 
 bool XimalayaApi::login(QString username, QString password, QString *msg)
 {
-    //        QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/passport/token/login"));
-    //        if(result.isEmpty())
-    //        {
-    //            QMessageBox::warning(this,tr("warning"),tr("error"),QMessageBox::Yes);
-    //            return;
-    //        }
-    //        if(!result.contains("token"))
-    //        {
-    //            QMessageBox::warning(this,tr("warning"),tr("no login token"),QMessageBox::Yes);
-    //            return;
-    //        }
-    //        QString token = result["token"].toString();
-
-    QByteArray data;
-    data.append("account=");
-    data.append(username);
-    data.append("&password=");
-    data.append(password);
-
-    QJsonObject result = requests.postXimalaya(QUrl(baseUrl + "/mobile/login"), data);
+    QJsonObject result = requests.getXimalaya(QUrl(baseUrl + "/passport/token/login"));
     if (requests.checkXimalayaResult(result))
     {
-        (*requests.settings).setValue("uid", result["uid"].toVariant().toString());
-        (*requests.settings).setValue("token", result["token"].toString());
-        (*requests.settings).setValue("nickname", result["nickname"].toString());
+        QString token = result["token"].toString();
+        QByteArray rsaPassword;
+        if(EncryptRsaPassword(password, token, &rsaPassword))
+        {
+            QByteArray data;
+            data.append("account=");
+            data.append(username);
+            data.append("&password=");
+            data.append(rsaPassword.toPercentEncoding());
 
-        return true;
+            result = requests.postXimalaya(QUrl(baseUrl + "/passport/mobile/security/login"), data);
+            if (requests.checkXimalayaResult(result))
+            {
+                (*requests.settings).setValue("uid", result["uid"].toVariant().toString());
+                (*requests.settings).setValue("token", result["token"].toString());
+                (*requests.settings).setValue("nickname", result["nickname"].toString());
+
+                return true;
+            }
+        }
+        else
+        {
+            *msg = "rsa encrypt failed";
+            return false;
+        }
+
     }
     if (result.contains("msg"))
         *msg = result["msg"].toString();
@@ -97,7 +106,7 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
     QUrl url(flyUrl);
     QUrlQuery query;
     query.addQueryItem("anchorId", uid);
-	query.addQueryItem("device", "obs");
+    query.addQueryItem("device", "obs");
     query.addQueryItem("liveId", liveId);
     query.addQueryItem("userId", uid);
     query.addQueryItem("userType", "anchor");
@@ -257,3 +266,78 @@ bool XimalayaApi::getUploadAlbums(QJsonObject *result, QString *msg)
     return false;
 }
 
+RSA *XimalayaApi::createRSA(unsigned char * key, int ispublic)
+{
+    RSA *rsa = NULL;
+    BIO *keybio;
+    keybio = BIO_new_mem_buf(key, -1);
+    if (keybio == NULL)
+    {
+        printf("Failed to create key BIO");
+        return 0;
+    }
+    if (ispublic)
+    {
+        rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa, NULL, NULL);
+    }
+    else
+    {
+        rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa, NULL, NULL);
+    }
+
+    return rsa;
+}
+int XimalayaApi::public_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
+{
+    RSA * rsa = createRSA(key, 1);
+    int result = RSA_public_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_PADDING);
+    return result;
+}
+int XimalayaApi::private_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
+{
+    RSA * rsa = createRSA(key, 0);
+    int  result = RSA_private_decrypt(data_len, enc_data, decrypted, rsa, RSA_PKCS1_PADDING);
+    return result;
+}
+int XimalayaApi::private_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
+{
+    RSA * rsa = createRSA(key, 0);
+    int result = RSA_private_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_PADDING);
+    return result;
+}
+int XimalayaApi::public_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
+{
+    RSA * rsa = createRSA(key, 1);
+    int  result = RSA_public_decrypt(data_len, enc_data, decrypted, rsa, RSA_PKCS1_PADDING);
+    return result;
+}
+
+bool XimalayaApi::RSAPublicKeyEncrypt(QByteArray data, QByteArray key, QByteArray *result)
+{
+    char * pwd = data.data();
+    unsigned char publicKey[]="-----BEGIN PUBLIC KEY-----\n"\
+                              "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCVhaR3Or7suUlwHUl2Ly36uVmb\n"\
+                              "oZ3+HhovogDjLgRE9CbaUokS2eqGaVFfbxAUxFThNDuXq/fBD+SdUgppmcZrIw4H\n"\
+                              "MMP4AtE2qJJQH/KxPWmbXH7Lv+9CisNtPYOlvWJ/GHRqf9x3TBKjjeJ2CjuVxlPB\n"\
+                              "DX63+Ecil2JR9klVawIDAQAB\n"\
+                              "-----END PUBLIC KEY-----\n";
+    unsigned char  encrypted[128]={};
+    int encrypted_length = public_encrypt((unsigned char *)pwd, strlen(pwd), publicKey, encrypted);
+    if(encrypted_length == -1)
+        return false;
+    *result = QByteArray::fromRawData((const char *)encrypted, encrypted_length).toBase64();
+    return true;
+}
+
+bool XimalayaApi::EncryptRsaPassword(QString password, QString token, QByteArray *result)
+{
+    QByteArray publicKey("-----BEGIN PUBLIC KEY-----\n"\
+                         "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCVhaR3Or7suUlwHUl2Ly36uVmb\n"\
+                         "oZ3+HhovogDjLgRE9CbaUokS2eqGaVFfbxAUxFThNDuXq/fBD+SdUgppmcZrIw4H\n"\
+                         "MMP4AtE2qJJQH/KxPWmbXH7Lv+9CisNtPYOlvWJ/GHRqf9x3TBKjjeJ2CjuVxlPB\n"\
+                         "DX63+Ecil2JR9klVawIDAQAB\n"\
+                         "-----END PUBLIC KEY-----\n");
+    QByteArray pwdData = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex();
+    pwdData.append(token);
+	return RSAPublicKeyEncrypt(pwdData, publicKey, result);
+}

@@ -4,20 +4,13 @@
 #include <QUrl>
 #include <QSettings>
 
-#include <openssl/pem.h>
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-
 Requests::Requests(QObject *parent) : QObject(parent)
 {
     settings = new QSettings("XimalayaFM", "obs-studio");
-	if (isTest())
-	{
-		envId = "4";
-	}
+    if (isTest())
+    {
+        envId = "4";
+    }
 
     QString device;
 #ifdef _WIN32
@@ -40,29 +33,29 @@ Requests::Requests(QObject *parent) : QObject(parent)
     deviceId = (*settings).value("deviceId").toString();
     userAgent = "obs_v" + ver + "_c0 (" + device + ")";
 
-	setProxy();
+    setProxy();
 }
 
 Requests::~Requests()
 {
-	delete settings;
+    delete settings;
 }
 
 QByteArray Requests::getString(const QNetworkRequest &request)
 {
-	QByteArray url("GET ");
-	url.append(request.url().toString());
-	blog(LOG_INFO, url);
+    QByteArray url("GET ");
+    url.append(request.url().toString());
+    blog(LOG_INFO, url);
 
     return processStringResult(get(request));
 }
 
 QByteArray Requests::postString(const QNetworkRequest &request, const QByteArray &data)
 {
-	QByteArray url("POST ");
-	url.append(request.url().toString());
-	blog(LOG_INFO, url);
-	blog(LOG_INFO, data);
+    QByteArray url("POST ");
+    url.append(request.url().toString());
+    blog(LOG_INFO, url);
+    blog(LOG_INFO, data);
 
     return processStringResult(post(request, data));
 }
@@ -111,11 +104,11 @@ bool Requests::checkXimalayaResult(QJsonObject result)
 
 bool Requests::isTest()
 {
-	if ((*settings).contains("test"))
-	{
-		return (*settings).value("test").toBool();
-	}
-	return false;
+    if ((*settings).contains("test"))
+    {
+        return (*settings).value("test").toBool();
+    }
+    return false;
 }
 
 QNetworkReply *Requests::get(const QNetworkRequest &request)
@@ -146,11 +139,11 @@ QByteArray Requests::processStringResult(QNetworkReply *response)
     }
     else
     {
-		QByteArray msg;
-		msg.append("code:");
-		msg.append(response->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString());
-		msg.append(" content: ");
-		msg.append(response->readAll());
+        QByteArray msg;
+        msg.append("code:");
+        msg.append(response->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString());
+        msg.append(" content: ");
+        msg.append(response->readAll());
         blog(LOG_ERROR, msg);
     }
     response->deleteLater();
@@ -178,8 +171,8 @@ QJsonObject Requests::processJsonResult(QByteArray data)
         }
         else
         {
-			QByteArray msg("error:");
-			msg.append(jsonpe.errorString());
+            QByteArray msg("error:");
+            msg.append(jsonpe.errorString());
             blog(LOG_ERROR, msg);
         }
     }
@@ -206,69 +199,21 @@ QNetworkRequest Requests::getXimalayaRequest(const QUrl &url)
 
 bool Requests::setProxy()
 {
-	if ((*settings).contains("proxy"))
-	{
-		if ((*settings).value("proxy").toBool())
-		{
-			QString proxyHost = (*settings).value("proxyHost").toString();
-			int proxyPort = (*settings).value("proxyPort").toInt();
+    if ((*settings).contains("proxy"))
+    {
+        if ((*settings).value("proxy").toBool())
+        {
+            QString proxyHost = (*settings).value("proxyHost").toString();
+            int proxyPort = (*settings).value("proxyPort").toInt();
 
-			QNetworkProxy proxy;
-			proxy.setType(QNetworkProxy::HttpProxy);
-			proxy.setHostName(proxyHost);
-			proxy.setPort(proxyPort);
-			manager.setProxy(proxy);
-			return true;
-		}
-	}
-	return false;
+            QNetworkProxy proxy;
+            proxy.setType(QNetworkProxy::HttpProxy);
+            proxy.setHostName(proxyHost);
+            proxy.setPort(proxyPort);
+            manager.setProxy(proxy);
+            return true;
+        }
+    }
+    return false;
 }
-
-//RSA *Requests::createRSA(unsigned char * key, int ispublic)
-//{
-//	RSA *rsa = NULL;
-//	BIO *keybio;
-//	keybio = BIO_new_mem_buf(key, -1);
-//	if (keybio == NULL)
-//	{
-//		printf("Failed to create key BIO");
-//		return 0;
-//	}
-//	if (ispublic)
-//	{
-//		rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa, NULL, NULL);
-//	}
-//	else
-//	{
-//		rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa, NULL, NULL);
-//	}
-//
-//	return rsa;
-//}
-//int Requests::public_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
-//{
-//	RSA * rsa = createRSA(key, 1);
-//	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_PADDING);
-//	return result;
-//}
-//int Requests::private_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
-//{
-//	RSA * rsa = createRSA(key, 0);
-//	int  result = RSA_private_decrypt(data_len, enc_data, decrypted, rsa, RSA_PKCS1_PADDING);
-//	return result;
-//}
-//
-//
-//int Requests::private_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
-//{
-//	RSA * rsa = createRSA(key, 0);
-//	int result = RSA_private_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_PADDING);
-//	return result;
-//}
-//int Requests::public_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
-//{
-//	RSA * rsa = createRSA(key, 1);
-//	int  result = RSA_public_decrypt(data_len, enc_data, decrypted, rsa, RSA_PKCS1_PADDING);
-//	return result;
-//}
 
