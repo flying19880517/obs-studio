@@ -66,6 +66,7 @@
 #include "ximalaya-upload-to-album-dialog.hpp"
 #include "IAgoraRtcEngine.h"
 #include "ximalaya-agora-rtc-engine-event-handler.hpp"
+//#include "ximalaya-web-dialog.hpp"
 
 using namespace std;
 
@@ -153,6 +154,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionShowSettingsFolder->setVisible(false);
 	ui->actionShowProfileFolder->setVisible(false);
 	ui->actionCheckForUpdates->setVisible(false);
+	ui->panLiving->setVisible(false);
 	if (!ximalayaApi.requests.isTest())
 	{
 		ui->btnLink->setVisible(false);
@@ -916,7 +918,8 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 
 	ui->btnLogout->setDisabled(true);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
-	return true;
+	ui->panLiving->setVisible(true);
+    return true;
 }
 
 bool OBSBasic::XimalayaLiveStop()
@@ -933,6 +936,7 @@ bool OBSBasic::XimalayaLiveStop()
 
 	ui->btnLogout->setDisabled(false);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.NoLive"));
+	ui->panLiving->setVisible(false);
 	return true;
 }
 
@@ -4459,6 +4463,18 @@ void OBSBasic::on_btnLink_clicked()
 		channel = "";
 	}
 
+}
+void OBSBasic::on_btnOpenConsoleMessages_clicked()
+{
+	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+	QProcess::startDetached(QString("XimalayaFMLiveMessages %1").arg(liveId));
+}
+void OBSBasic::on_btnOpenWebMessages_clicked()
+{
+
+	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+	QUrl liveUrl = QUrl(QString("%1/live/%2").arg(ximalayaApi.mUrl, liveId));
+	QDesktopServices::openUrl(liveUrl);
 }
 
 void OBSBasic::on_actionWebsite_triggered()

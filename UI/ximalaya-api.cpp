@@ -16,6 +16,7 @@ XimalayaApi::XimalayaApi(QObject *parent) : QObject(parent)
     {
         baseUrl = "http://mobile.test.ximalaya.com";
         flyUrl = "http://192.168.3.131:2900/fly";
+		mUrl = "http://m.test.ximalaya.com";
     }
 }
 

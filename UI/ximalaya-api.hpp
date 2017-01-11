@@ -24,12 +24,13 @@ public:
 
     bool getUploadAlbums(QJsonObject *result, QString *msg);
     Requests requests;
+    QString baseUrl = "http://mobile.ximalaya.com";
+    QString flyUrl = "http://114.80.138.114:2900/fly";
+	QString mUrl = "http://m.ximalaya.com";
 signals:
 
 public slots:
 private:
-    QString baseUrl = "http://mobile.ximalaya.com";
-    QString flyUrl = "http://114.80.138.114:2900/fly";
 
 
 

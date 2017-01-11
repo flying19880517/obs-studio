@@ -549,6 +549,8 @@ private slots:
 	void on_btnLogin_clicked();
 	void on_btnLogout_clicked();
 	void on_btnLink_clicked();
+	void on_btnOpenConsoleMessages_clicked();
+	void on_btnOpenWebMessages_clicked();
 
 	void on_actionWebsite_triggered();
 
