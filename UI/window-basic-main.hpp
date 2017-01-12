@@ -504,6 +504,8 @@ private slots:
 	void on_actionCheckForUpdates_triggered();
 
 	void on_actionEditTransform_triggered();
+	void on_actionCopyTransform_triggered();
+	void on_actionPasteTransform_triggered();
 	void on_actionRotate90CW_triggered();
 	void on_actionRotate90CCW_triggered();
 	void on_actionRotate180_triggered();
@@ -562,11 +564,15 @@ private slots:
 	void on_actionDupSceneCollection_triggered();
 	void on_actionRenameSceneCollection_triggered();
 	void on_actionRemoveSceneCollection_triggered();
+	void on_actionImportSceneCollection_triggered();
+	void on_actionExportSceneCollection_triggered();
 
 	void on_actionNewProfile_triggered();
 	void on_actionDupProfile_triggered();
 	void on_actionRenameProfile_triggered();
 	void on_actionRemoveProfile_triggered();
+	void on_actionImportProfile_triggered();
+	void on_actionExportProfile_triggered();
 
 	void on_actionShowSettingsFolder_triggered();
 	void on_actionShowProfileFolder_triggered();

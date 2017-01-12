@@ -1045,6 +1045,8 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_uint  (basicConfig, "AdvOut", "Track2Bitrate", 160);
 	config_set_default_uint  (basicConfig, "AdvOut", "Track3Bitrate", 160);
 	config_set_default_uint  (basicConfig, "AdvOut", "Track4Bitrate", 160);
+	config_set_default_uint  (basicConfig, "AdvOut", "Track5Bitrate", 160);
+	config_set_default_uint  (basicConfig, "AdvOut", "Track6Bitrate", 160);
 
 	config_set_default_uint  (basicConfig, "Video", "BaseCX",   cx);
 	config_set_default_uint  (basicConfig, "Video", "BaseCY",   cy);
@@ -1244,6 +1246,14 @@ void OBSBasic::ResetOutputs()
 
 extern obs_frontend_callbacks *InitializeAPIInterface(OBSBasic *main);
 
+#define UNSUPPORTED_ERROR \
+	"Failed to initialize video:\n\nRequired graphics API functionality " \
+	"not found.  Your GPU may not be supported."
+
+#define UNKNOWN_ERROR \
+	"Failed to initialize video.  Your GPU may not be supported, " \
+	"or your graphics drivers may need to be updated."
+
 void OBSBasic::OBSInit()
 {
 	ProfileScope("OBSBasic::OBSInit");
@@ -1277,14 +1287,12 @@ void OBSBasic::OBSInit()
 	case OBS_VIDEO_MODULE_NOT_FOUND:
 		throw "Failed to initialize video:  Graphics module not found";
 	case OBS_VIDEO_NOT_SUPPORTED:
-		throw "Failed to initialize video:  Required graphics API "
-		      "functionality not found on these drivers or "
-		      "unavailable on this equipment";
+		throw UNSUPPORTED_ERROR;
 	case OBS_VIDEO_INVALID_PARAM:
 		throw "Failed to initialize video:  Invalid parameters";
 	default:
 		if (ret != OBS_VIDEO_SUCCESS)
-			throw "Failed to initialize video:  Unspecified error";
+			throw UNKNOWN_ERROR;
 	}
 
 	InitOBSCallbacks();
@@ -1947,6 +1955,9 @@ void OBSBasic::AddScene(OBSSource source)
 		blog(LOG_INFO, "User added scene '%s'",
 				obs_source_get_name(source));
 	}
+
+	if (api)
+		api->on_event(OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED);
 }
 
 void OBSBasic::RemoveScene(OBSSource source)
@@ -2340,8 +2351,6 @@ void OBSBasic::DuplicateSelectedScene()
 		SetCurrentScene(source, true);
 		obs_scene_release(scene);
 
-		if (api)
-			api->on_event(OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED);
 		break;
 	}
 }
@@ -4639,6 +4648,50 @@ void OBSBasic::on_actionEditTransform_triggered()
 	transformWindow = new OBSBasicTransform(this);
 	transformWindow->show();
 	transformWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+}
+
+static obs_transform_info copiedTransformInfo;
+static obs_sceneitem_crop copiedCropInfo;
+
+void OBSBasic::on_actionCopyTransform_triggered()
+{
+	auto func = [](obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+	{
+		if (!obs_sceneitem_selected(item))
+			return true;
+
+		obs_sceneitem_defer_update_begin(item);
+		obs_sceneitem_get_info(item, &copiedTransformInfo);
+		obs_sceneitem_get_crop(item, &copiedCropInfo);
+		obs_sceneitem_defer_update_end(item);
+
+		UNUSED_PARAMETER(scene);
+		UNUSED_PARAMETER(param);
+		return true;
+	};
+
+	obs_scene_enum_items(GetCurrentScene(), func, nullptr);
+	ui->actionPasteTransform->setEnabled(true);
+}
+
+void OBSBasic::on_actionPasteTransform_triggered()
+{
+	auto func = [](obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+	{
+		if (!obs_sceneitem_selected(item))
+			return true;
+
+		obs_sceneitem_defer_update_begin(item);
+		obs_sceneitem_set_info(item, &copiedTransformInfo);
+		obs_sceneitem_set_crop(item, &copiedCropInfo);
+		obs_sceneitem_defer_update_end(item);
+
+		UNUSED_PARAMETER(scene);
+		UNUSED_PARAMETER(param);
+		return true;
+	};
+
+	obs_scene_enum_items(GetCurrentScene(), func, nullptr);
 }
 
 void OBSBasic::on_actionResetTransform_triggered()
