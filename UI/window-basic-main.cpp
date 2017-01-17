@@ -66,6 +66,7 @@
 #include "ximalaya-upload-to-album-dialog.hpp"
 #include "IAgoraRtcEngine.h"
 #include "ximalaya-agora-rtc-engine-event-handler.hpp"
+#include "XMSignalingClientApi.h"
 //#include "ximalaya-web-dialog.hpp"
 
 using namespace std;
@@ -4442,35 +4443,169 @@ void OBSBasic::on_btnLogout_clicked()
 agora::rtc::IRtcEngine *engine;
 XimalayaAgoraRtcEngineEventHandler engineEventHandler;
 QString channel;
+
+volatile static bool isStarted = false;
+int OBSBasic::EventCallback(int nError, int nMsgType, void* data, void* pContext)
+{
+	OBSBasic *pOBSBasic = (OBSBasic*)pContext;
+
+	QString uid = (*(*pOBSBasic).ximalayaApi.requests.settings).value("uid").toString();
+	QString liveId = (*(*pOBSBasic).ximalayaApi.requests.settings).value("liveId").toString();
+	QString roomId = (*(*pOBSBasic).ximalayaApi.requests.settings).value("roomId").toString();
+
+	XMSignalingClientInst pInst = (*pOBSBasic).ximalayaSignalingClientInst;
+    //XMSignalingClientInst* pInst = (XMSignalingClientInst*)pContext;
+  qDebug("EventCallBack, %d %d  %s\n", nError, nMsgType, GetTypeNameByEnumType((XMSingalMsgType)nMsgType));
+
+    // test the rsp data
+    if (nMsgType == MIC_START_RSP) {
+        XMMICStartRsp* rspData = (XMMICStartRsp*)data;
+        if (rspData) {
+            qDebug("In callback user num %d\n", rspData->user_num);
+            if (rspData->resultCode == 0)
+                isStarted = true;
+        }
+    }
+
+    // handle http error  restart mic login
+    if (nError == XMSignaling_ERROR_HTTP_RESOLVE_ADDR || nError == XMSignaling_ERROR_HTTP_PARSE_RESULT
+            || nError == XMSignaling_ERROR_HTTP_RW)
+    {
+        Sleep(1000);
+        XMSignalingSetConfig("LoginIp", "192.168.62.74");
+        XMSignalingSetConfig("LoginPort", "13001");
+        XMSignalingStart(pInst, uid.toULongLong(), liveId.toULongLong(), roomId.toULongLong());
+    }
+    else if (nError == XMSignaling_ERROR_RECV_MSG)  // recv msg error, fatal error! restart service
+    {
+        XMSignalingDestroyInst(pInst);
+        XMSignalingCreateInst(&pInst, EventCallback, pOBSBasic);
+        XMSignalingStart(pInst, uid.toULongLong(), liveId.toULongLong(), roomId.toULongLong());
+    }
+    // ... etc
+
+    return 0;
+}
+
 void OBSBasic::on_btnLink_clicked()
 {
-	if (engine == NULL)
-	{
-		engine = createAgoraRtcEngine();
-		agora::rtc::RtcEngineContext ctx;
-		ctx.appId = "4af59db04ebf416b8f70d6109b69445c";
-        ctx.eventHandler = &engineEventHandler;
-		(*engine).initialize(ctx);
-		(*engine).disableVideo();
-	}
-	if (channel.isEmpty())
-	{
-		QString c = (*ximalayaApi.requests.settings).value("uid").toString();
-		int ret = (*engine).joinChannel(NULL, c.toLocal8Bit().constData(), NULL, 0);
-		blog(LOG_INFO, "join ret:%d channel:%s", ret, c);
-		if (ret == 0)
-        {
-			channel = c;
-			ui->btnLink->setText(QTStr("Ximalaya.Main.DisconnectAgora"));
+	QString uid = (*ximalayaApi.requests.settings).value("uid").toString();
+	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+	QString roomId = (*ximalayaApi.requests.settings).value("roomId").toString();
+
+
+    int nRet = XMSignaling_SUCCESS;
+    nRet = XMSignalingClientInitialize(NULL);
+    if (nRet != XMSignaling_SUCCESS)
+    {
+        qDebug("XMSignalingClientInitialize Error !\n");
+        return;
+    }
+
+    nRet = XMSignalingSetConfig("LoginIp", "192.168.62.74");
+    nRet = XMSignalingSetConfig("LoginPort", "13001");
+    //nRet = XMSignalingSetConfig("LoginIp", "baidu.com");  // a wrong address for error handling
+    //nRet = XMSignalingSetConfig("LoginPort", "80");
+    nRet = XMSignalingSetConfig("HeartBeatIntervalSec", "30");
+	XMSignalingClientInst oInst = ximalayaSignalingClientInst;
+    nRet = XMSignalingCreateInst(&oInst, OBSBasic::EventCallback,this);
+    if (nRet != XMSignaling_SUCCESS)
+    {
+        qDebug("XMSignalingCreateInst Error !\n");
+        return;
+    }
+
+    nRet = XMSignalingStart(oInst, uid.toULongLong(), liveId.toULongLong(), roomId.toULongLong());
+    if (nRet != XMSignaling_SUCCESS)
+    {
+        qDebug("XMSignalingLogin Error !\n");
+        return;
+    }
+
+    int wait_sec = 0;
+    const int MAX_WAIT_TIME = 20;
+    while (XMSignalingCheckStatus(oInst) != XMSIGNALING_INST_LOGINED) {
+        Sleep(1000);
+        wait_sec++;
+        // restart the service with the right config
+        if (wait_sec > MAX_WAIT_TIME) {
+            wait_sec = 0;
+            XMSignalingDestroyInst(oInst);
+            XMSignalingSetConfig("LoginIp", "192.168.62.74");
+            XMSignalingSetConfig("LoginPort", "13001");
+            XMSignalingCreateInst(&oInst, EventCallback, this);
+            XMSignalingStart(oInst, uid.toULongLong(), liveId.toULongLong(), roomId.toULongLong());
         }
-	}
-	else
-	{
-		int ret = (*engine).leaveChannel();
-		blog(LOG_INFO, "leave ret:%d", ret);
-		ui->btnLink->setText(QTStr("Ximalaya.Main.ConnectAgora"));
-		channel = "";
-	}
+    }
+
+    //only when logined we can do the followings
+    nRet = XMSignalingOperatorConnect(oInst, 333, uid.toLocal8Bit().constData(), "");
+
+    Sleep(1000);
+
+    nRet = XMSignalingOperatorHangUp(oInst, 333);
+
+    Sleep(1000);
+
+    struct XMMICOnlineUser users[3] = { 0 };
+    users[0].userid = 222;
+    users[1].userid = 333;
+    users[2].userid = 444;
+    nRet = XMSignalingOnlineUserNotify(oInst, true, 3, &users[0]);
+
+    Sleep(5000);
+
+    nRet = XMSignalingStop(oInst);
+
+    // wait for stop response
+    wait_sec = 0;
+    while (XMSignalingCheckStatus(oInst) != XMSIGNALING_INST_DISCONNECTED)
+    {
+        Sleep(1000);
+        wait_sec++;
+        if (wait_sec > 10) {
+            XMSignalingStop(oInst); // resend the stop req and terminate
+            break;
+        }
+    }
+
+    XMSignalingDestroyInst(oInst);
+
+    // start another instance
+    qDebug("\n\ncreate another test case\n");
+    XMSignalingCreateInst(&oInst, EventCallback, this);
+    XMSignalingStart(oInst, uid.toULongLong(), liveId.toULongLong(), roomId.toULongLong());
+    Sleep(1000);
+    XMSignalingDestroyInst(oInst);  // destroy can be called any time..
+
+
+   /* if (engine == NULL)
+    {
+        engine = createAgoraRtcEngine();
+        agora::rtc::RtcEngineContext ctx;
+        ctx.appId = "4af59db04ebf416b8f70d6109b69445c";
+        ctx.eventHandler = &engineEventHandler;
+        (*engine).initialize(ctx);
+        (*engine).disableVideo();
+    }
+    if (channel.isEmpty())
+    {
+        QString c = (*ximalayaApi.requests.settings).value("uid").toString();
+        int ret = (*engine).joinChannel(NULL, c.toLocal8Bit().constData(), NULL, 0);
+        blog(LOG_INFO, "join ret:%d channel:%s", ret, c);
+        if (ret == 0)
+        {
+            channel = c;
+            ui->btnLink->setText(QTStr("Ximalaya.Main.DisconnectAgora"));
+        }
+    }
+    else
+    {
+        int ret = (*engine).leaveChannel();
+        blog(LOG_INFO, "leave ret:%d", ret);
+        ui->btnLink->setText(QTStr("Ximalaya.Main.ConnectAgora"));
+        channel = "";
+    }*/
 
 }
 void OBSBasic::on_btnOpenConsoleMessages_clicked()

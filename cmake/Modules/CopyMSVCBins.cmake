@@ -25,6 +25,7 @@ find_package(Libfdk QUIET)
 find_package(ssl QUIET)
 find_package(Qt5Core QUIET)
 find_package(AgoraRTC QUIET)
+find_package(XMLY QUIET)
 
 file(GLOB FFMPEG_BIN_FILES
 	"${FFMPEG_avcodec_INCLUDE_DIR}/../bin/avcodec-*.dll"
@@ -139,6 +140,13 @@ file(GLOB AGORARTC_BIN_FILES
 	"${AGORARTC_INCLUDE_DIR}/bin/agorartc.dll"
 	"${AGORARTC_INCLUDE_DIR}/bin/AgoraRTCEngine.dll"
 	)
+	
+file(GLOB XMLY_BIN_FILES
+	"${XMLY_INCLUDE_DIR}/../bin${_bin_suffix}/XmlySignalingClient.dll"
+	"${XMLY_INCLUDE_DIR}/../bin/XmlySignalingClient.dll"
+	"${XMLY_INCLUDE_DIR}/bin${_bin_suffix}/XmlySignalingClient.dll"
+	"${XMLY_INCLUDE_DIR}/bin/XmlySignalingClient.dll"
+	)
 
 if (ZLIB_LIB)
 	GET_FILENAME_COMPONENT(ZLIB_BIN_PATH ${ZLIB_LIB} PATH)
@@ -184,6 +192,7 @@ file(GLOB QT_ICU_BIN_FILES
 
 set(ALL_BASE_BIN_FILES
 	${AGORARTC_BIN_FILES}
+	${XMLY_BIN_FILES}
 	${FFMPEG_BIN_FILES}
 	${X264_BIN_FILES}
 	${CURL_BIN_FILES}
@@ -220,6 +229,7 @@ message(STATUS "x264 files: ${X264_BIN_FILES}")
 message(STATUS "Libfdk files: ${LIBFDK_BIN_FILES}")
 message(STATUS "Freetype files: ${FREETYPE_BIN_FILES}")
 message(STATUS "agorartc files: ${AGORARTC_BIN_FILES}")
+message(STATUS "xmly files: ${XMLY_BIN_FILES}")
 message(STATUS "curl files: ${CURL_BIN_FILES}")
 message(STATUS "ssl files: ${SSL_BIN_FILES}")
 message(STATUS "zlib files: ${ZLIB_BIN_FILES}")

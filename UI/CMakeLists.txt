@@ -58,6 +58,10 @@ find_package(AgoraRTC REQUIRED)
 include_directories(${AGORARTC_INCLUDE_DIRS})
 add_definitions(${AGORARTC_DEFINITIONS})
 
+find_package(XMLY REQUIRED)
+include_directories(${XMLY_INCLUDE_DIRS})
+add_definitions(${XMLY_DEFINITIONS})
+
 find_package(ssl QUIET)
 include_directories(${SSL_INCLUDE_DIRS})
 add_definitions(${SSL_DEFINITIONS})
@@ -248,6 +252,7 @@ target_link_libraries(obs
 	obs-frontend-api
 	${LIBCURL_LIBRARIES}
 	${AGORARTC_LIBRARIES}
+	${XMLY_LIBRARIES}
 	${SSL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
 

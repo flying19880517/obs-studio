@@ -45,6 +45,7 @@ class QNetworkReply;
 #include "ui_OBSBasic.h"
 
 #include "ximalaya-api.hpp"
+#include "XMSignalingClientType.h"
 
 #define DESKTOP_AUDIO_1 Str("DesktopAudioDevice1")
 #define DESKTOP_AUDIO_2 Str("DesktopAudioDevice2")
@@ -639,5 +640,7 @@ public:
 private:
 	std::unique_ptr<Ui::OBSBasic> ui;
 
-	XimalayaApi ximalayaApi;
+    XimalayaApi ximalayaApi;
+	static int EventCallback(int nError, int nMsgType, void *data, void *pContext);
+	XMSignalingClientInst ximalayaSignalingClientInst;
 };
