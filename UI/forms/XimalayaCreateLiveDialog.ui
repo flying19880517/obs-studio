@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>XimalayaCreateLiveDialog</class>
+ <widget class="QDialog" name="XimalayaCreateLiveDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>363</width>
+    <height>215</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Ximalaya.CreateLiveDialog.Title</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <widget class="QWidget" name="tabLiving">
+      <attribute name="title">
+       <string>Ximalaya.CreateLiveDialog.LivingHeader</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="listLiving"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btnContinue">
+         <property name="text">
+          <string>Ximalaya.CreateLiveDialog.ButtonContinue</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabWaiting">
+      <attribute name="title">
+       <string>Ximalaya.CreateLiveDialog.WaitingHeader</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="listWaiting"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btnWaiting">
+         <property name="text">
+          <string>Ximalaya.CreateLiveDialog.ButtonWaiting</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCreate">
+      <attribute name="title">
+       <string>Ximalaya.CreateLiveDialog.CreateHeader</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="btnCreateLive">
+         <property name="text">
+          <string>Ximalaya.CreateLiveDialog.ButtonCreateLive</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QWidget" name="qWidget" native="true">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="txtLiveTitle">
+            <property name="placeholderText">
+             <string>Ximalaya.CreateLiveDialog.LiveTitlePlaceHolder</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblLiveCategory">
+            <property name="text">
+             <string>Ximalaya.CreateLiveDialog.LiveCategory</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="ddlCategory"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblLiveTitle">
+            <property name="text">
+             <string>Ximalaya.CreateLiveDialog.LiveTitle</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

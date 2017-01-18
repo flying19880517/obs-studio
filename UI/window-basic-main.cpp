@@ -60,6 +60,14 @@
 #include <QScreen>
 #include <QWindow>
 
+#include "ximalaya-api.hpp"
+#include "ximalaya-login-dialog.hpp"
+#include "ximalaya-create-live-dialog.hpp"
+#include "ximalaya-upload-to-album-dialog.hpp"
+#include "IAgoraRtcEngine.h"
+#include "ximalaya-agora-rtc-engine-event-handler.hpp"
+//#include "ximalaya-web-dialog.hpp"
+
 using namespace std;
 
 namespace {
@@ -126,6 +134,34 @@ OBSBasic::OBSBasic(QWidget *parent)
 	setAcceptDrops(true);
 
 	ui->setupUi(this);
+
+	//Hide controls
+	ui->sceneTransitionsLabel->setVisible(false);
+	ui->transitionsContainer->setVisible(false);
+	ui->scenesLabel->setVisible(false);
+	ui->scenesFrame->setVisible(false);
+	ui->sourcesLabel->setVisible(false);
+	ui->sourcesFrame->setVisible(false);
+	ui->preview->setVisible(false);
+	ui->modeSwitch->setVisible(false);
+	ui->exitButton->setVisible(false);
+	ui->menuBasic_MainMenu_Edit->menuAction()->setVisible(false);
+	ui->viewMenu->menuAction()->setVisible(false);
+	ui->profileMenu->menuAction()->setVisible(false);
+	ui->sceneCollectionMenu->menuAction()->setVisible(false);
+	ui->menuTools->menuAction()->setVisible(false);
+	ui->actionRemux->setVisible(false);
+	ui->actionShowSettingsFolder->setVisible(false);
+	ui->actionShowProfileFolder->setVisible(false);
+	ui->actionCheckForUpdates->setVisible(false);
+	ui->panLiving->setVisible(false);
+	ui->btnOpenConsoleMessages->setVisible(false);
+	ui->btnOpenWebMessages->setVisible(false);
+	if (!ximalayaApi.requests.isTest())
+	{
+		ui->btnLink->setVisible(false);
+	}
+
 	ui->previewDisabledLabel->setVisible(false);
 
 	copyActionsDynamicProperties();
@@ -780,6 +816,134 @@ bool OBSBasic::InitService()
 	return true;
 }
 
+bool OBSBasic::UpdateService(const char *server, const char *key)
+{
+        obs_data_t *settings = obs_service_get_settings(service);
+
+		obs_data_set_string(settings, "type", "rtmp_custom");
+		if(server)
+			obs_data_set_string(settings, "server", server);
+		if(key)
+			obs_data_set_string(settings, "key", key);
+		obs_data_set_bool(settings, "use_auth", false);
+
+        service = obs_service_create("rtmp_custom", "default_service", settings,
+                                     nullptr);
+        obs_service_release(service);
+
+        obs_data_release(settings);
+
+        return !!service;
+}
+
+bool OBSBasic::UpdateLoginState()
+{
+	if (ximalayaApi.checkLogin())
+	{
+		ui->btnLogin->setVisible(false);
+		ui->btnLogout->setVisible(true);
+		ui->lblNickname->setVisible(true);
+		ui->lblNickname->setText((*ximalayaApi.requests.settings).value("nickname").toString());
+	}
+	else
+	{
+		ui->btnLogin->setVisible(true);
+		ui->btnLogout->setVisible(false);
+		ui->lblNickname->setVisible(false);
+	}
+	return true;
+}
+
+bool OBSBasic::XimalayaLiveStart(bool skipSelect)
+{
+	QString msg;
+	if (!ximalayaApi.checkLogin())
+	{
+		XimalayaLoginDialog dlgLogin(this);
+		if (dlgLogin.exec() == QDialog::Accepted)
+		{
+			UpdateLoginState();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	if (!skipSelect)
+	{
+		XimalayaCreateLiveDialog dlgInfo(this);
+		if (dlgInfo.exec() != QDialog::Accepted)
+		{
+			return false;
+		}
+	}
+	QJsonObject result;
+	if (!ximalayaApi.liveStart(&result, &msg))
+	{
+		int ret = result["ret"].toInt();
+		if (ret == 2914)
+		{
+			if (QMessageBox::warning(this, QTStr("Ximalaya.ConfirmStopLiveDialog.Title"), QTStr("Ximalaya.ConfirmStopLiveDialog.Content"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+			{
+				//Stop current active live
+				ximalayaApi.liveStop("");
+				if (!ximalayaApi.liveStart(&result, &msg))
+				{
+					QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
+			return false;
+		}
+	}
+	if (!ximalayaApi.liveGetPushUrl(&msg))
+	{
+		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
+		return false;
+	}
+	QString server = (*ximalayaApi.requests.settings).value("server").toString();
+	QString key = (*ximalayaApi.requests.settings).value("key").toString();
+
+	config_set_bool(GetGlobalConfig(), "BasicWindow", "WarnBeforeStoppingStream", true);
+	config_set_string(basicConfig, "Output", "Mode", "Simple");
+	config_set_uint(basicConfig, "SimpleOutput", "VBitrate", 16);
+	UpdateService(server.toLocal8Bit().constData(), key.toLocal8Bit().constData());
+
+
+	ui->btnLogout->setDisabled(true);
+	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
+	ui->panLiving->setVisible(true);
+	ui->btnOpenConsoleMessages->setVisible(true);
+    return true;
+}
+
+bool OBSBasic::XimalayaLiveStop()
+{
+	if ((*ximalayaApi.requests.settings).contains("liveId"))
+	{
+		QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+		ximalayaApi.liveStop(liveId);
+
+		XimalayaUploadToAlbumDialog dlgSave(this);
+        dlgSave.liveId = liveId;
+		dlgSave.exec();
+	}
+
+	ui->btnLogout->setDisabled(false);
+	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.NoLive"));
+	ui->panLiving->setVisible(false);
+	ui->btnOpenConsoleMessages->setVisible(false);
+	return true;
+}
+
 static const double scaled_vals[] =
 {
 	1.0,
@@ -831,18 +995,18 @@ bool OBSBasic::InitBasicConfigDefaults()
 	config_set_default_string(basicConfig, "SimpleOutput", "FilePath",
 			GetDefaultVideoSavePath().c_str());
 	config_set_default_string(basicConfig, "SimpleOutput", "RecFormat",
-			"flv");
+			"mp4");
 	config_set_default_uint  (basicConfig, "SimpleOutput", "VBitrate",
-			2500);
+			16);
 	config_set_default_string(basicConfig, "SimpleOutput", "StreamEncoder",
 			SIMPLE_ENCODER_X264);
-	config_set_default_uint  (basicConfig, "SimpleOutput", "ABitrate", 160);
+	config_set_default_uint  (basicConfig, "SimpleOutput", "ABitrate", 64);
 	config_set_default_bool  (basicConfig, "SimpleOutput", "UseAdvanced",
 			false);
 	config_set_default_bool  (basicConfig, "SimpleOutput", "EnforceBitrate",
 			true);
 	config_set_default_string(basicConfig, "SimpleOutput", "Preset",
-			"veryfast");
+			"superfast");
 	config_set_default_string(basicConfig, "SimpleOutput", "RecQuality",
 			"Stream");
 	config_set_default_string(basicConfig, "SimpleOutput", "RecEncoder",
@@ -1246,10 +1410,10 @@ void OBSBasic::OBSInit()
 	int bottom = config_get_int(App()->GlobalConfig(), "BasicWindow",
 			"splitterBottom");
 
-	if (!top || !bottom) {
+	if (!top || !bottom || top > 42) {
 		defSizes = ui->mainSplitter->sizes();
 		int total = defSizes[0] + defSizes[1];
-		defSizes[0] = total * 75 / 100;
+		defSizes[0] = 42;
 		defSizes[1] = total - defSizes[0];
 	} else {
 		defSizes.push_back(top);
@@ -1259,6 +1423,29 @@ void OBSBasic::OBSInit()
 	ui->mainSplitter->setSizes(defSizes);
 
 	SystemTray(true);
+
+
+
+    UpdateLoginState();
+    QJsonObject result;
+    QString msg;
+    if (ximalayaApi.liveGetCurrentLiving(&result, &msg))
+    {
+        if (QMessageBox::information(this, QTStr("Ximalaya.ContinueLiveDialog.Title"), QTStr("Ximalaya.ContinueLiveDialog.Content"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+        {
+            QJsonObject data = result["data"].toObject();
+            QString liveId = data["id"].toVariant().toString();
+            QString roomId = data["roomId"].toVariant().toString();
+            QString liveTitle = data["name"].toString();
+            (*ximalayaApi.requests.settings).setValue("liveId", liveId);
+            (*ximalayaApi.requests.settings).setValue("roomId", roomId);
+            (*ximalayaApi.requests.settings).setValue("liveTitle", liveTitle);
+			if (XimalayaLiveStart(true))
+			{
+				StartStreaming();
+			}
+        }
+    }
 }
 
 void OBSBasic::InitHotkeys()
@@ -2034,6 +2221,7 @@ void OBSBasic::TimedCheckForUpdates()
 
 void OBSBasic::CheckForUpdates()
 {
+	return;
 #ifdef UPDATE_SPARKLE
 	trigger_sparkle_update();
 #else
@@ -2763,6 +2951,8 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 	QWidget::closeEvent(event);
 	if (!event->isAccepted())
 		return;
+
+	XimalayaLiveStop();
 
 	blog(LOG_INFO, SHUTDOWN_SEPARATOR);
 
@@ -3804,6 +3994,8 @@ void OBSBasic::StopStreaming()
 			"BasicWindow", "KeepRecordingWhenStreamStops");
 	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
 		StopRecording();
+
+	XimalayaLiveStop();
 }
 
 void OBSBasic::ForceStopStreaming()
@@ -3821,6 +4013,8 @@ void OBSBasic::ForceStopStreaming()
 			"BasicWindow", "KeepRecordingWhenStreamStops");
 	if (recordWhenStreaming && !keepRecordingWhenStreamStops)
 		StopRecording();
+
+	XimalayaLiveStop();
 }
 
 void OBSBasic::StreamDelayStarting(int sec)
@@ -4201,6 +4395,9 @@ void OBSBasic::on_streamButton_clicked()
 
 		StopStreaming();
 	} else {
+		if (!XimalayaLiveStart(false))
+			return;
+		
 		bool confirm = config_get_bool(GetGlobalConfig(), "BasicWindow",
 				"WarnBeforeStartingStream");
 
@@ -4231,9 +4428,71 @@ void OBSBasic::on_settingsButton_clicked()
 	on_action_Settings_triggered();
 }
 
+void OBSBasic::on_btnLogin_clicked()
+{
+	XimalayaLoginDialog dlg(this);
+	if (dlg.exec() == QDialog::Accepted)
+	{
+		UpdateLoginState();
+	}
+}
+
+void OBSBasic::on_btnLogout_clicked()
+{
+	XimalayaApi api;
+	api.logout();
+	UpdateLoginState();
+}
+agora::rtc::IRtcEngine *engine;
+XimalayaAgoraRtcEngineEventHandler engineEventHandler;
+QString channel;
+void OBSBasic::on_btnLink_clicked()
+{
+	if (engine == NULL)
+	{
+		engine = createAgoraRtcEngine();
+		agora::rtc::RtcEngineContext ctx;
+		ctx.appId = "4af59db04ebf416b8f70d6109b69445c";
+        ctx.eventHandler = &engineEventHandler;
+		(*engine).initialize(ctx);
+		(*engine).disableVideo();
+	}
+	if (channel.isEmpty())
+	{
+		QString c = (*ximalayaApi.requests.settings).value("uid").toString();
+		int ret = (*engine).joinChannel(NULL, c.toLocal8Bit().constData(), NULL, 0);
+		blog(LOG_INFO, "join ret:%d channel:%s", ret, c);
+		if (ret == 0)
+        {
+			channel = c;
+			ui->btnLink->setText(QTStr("Ximalaya.Main.DisconnectAgora"));
+        }
+	}
+	else
+	{
+		int ret = (*engine).leaveChannel();
+		blog(LOG_INFO, "leave ret:%d", ret);
+		ui->btnLink->setText(QTStr("Ximalaya.Main.ConnectAgora"));
+		channel = "";
+	}
+
+}
+void OBSBasic::on_btnOpenConsoleMessages_clicked()
+{
+	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+	QProcess::startDetached(QString("XimalayaFMLiveMessages %1").arg(liveId));
+}
+void OBSBasic::on_btnOpenWebMessages_clicked()
+{
+
+	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
+	QUrl liveUrl = QUrl(QString("%1/live/%2").arg(ximalayaApi.mUrl, liveId));
+	QDesktopServices::openUrl(liveUrl);
+}
+
 void OBSBasic::on_actionWebsite_triggered()
 {
-	QUrl url = QUrl("https://obsproject.com", QUrl::TolerantMode);
+	QUrl url = QUrl("http://www.ximalaya.com", QUrl::TolerantMode);
 	QDesktopServices::openUrl(url);
 }
 
@@ -4669,9 +4928,9 @@ void OBSBasic::on_actionCenterToScreen_triggered()
 
 void OBSBasic::EnablePreviewDisplay(bool enable)
 {
-	obs_display_set_enabled(ui->preview->GetDisplay(), enable);
-	ui->preview->setVisible(enable);
-	ui->previewDisabledLabel->setVisible(!enable);
+	//obs_display_set_enabled(ui->preview->GetDisplay(), enable);
+	//ui->preview->setVisible(enable);
+	//ui->previewDisabledLabel->setVisible(!enable);
 }
 
 void OBSBasic::TogglePreview()
@@ -4765,25 +5024,30 @@ void OBSBasic::OpenSceneProjector()
 
 void OBSBasic::UpdateTitleBar()
 {
-	stringstream name;
+	//stringstream name;
 
-	const char *profile = config_get_string(App()->GlobalConfig(),
-			"Basic", "Profile");
-	const char *sceneCollection = config_get_string(App()->GlobalConfig(),
-			"Basic", "SceneCollection");
+	//const char *profile = config_get_string(App()->GlobalConfig(),
+	//		"Basic", "Profile");
+	//const char *sceneCollection = config_get_string(App()->GlobalConfig(),
+	//		"Basic", "SceneCollection");
 
-	name << "OBS ";
-	if (previewProgramMode)
-		name << "Studio ";
+	//name << "OBS ";
+	//if (previewProgramMode)
+	//	name << "Studio ";
 
-	name << App()->GetVersionString();
-	if (App()->IsPortableMode())
-		name << " - Portable Mode";
+	//name << App()->GetVersionString();
+	//if (App()->IsPortableMode())
+	//	name << " - Portable Mode";
 
-	name << " - " << Str("TitleBar.Profile") << ": " << profile;
-	name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
+	//name << " - " << Str("TitleBar.Profile") << ": " << profile;
+	//name << " - " << Str("TitleBar.Scenes") << ": " << sceneCollection;
 
-	setWindowTitle(QT_UTF8(name.str().c_str()));
+	//setWindowTitle(QT_UTF8(name.str().c_str()));
+	QByteArray title;
+	title.append(QTStr("Ximalaya.Main.AppName"));
+	title.append(" ");
+	title.append(OBS_VERSION);
+	setWindowTitle(title);
 }
 
 int OBSBasic::GetProfilePath(char *path, size_t size, const char *file) const

@@ -44,12 +44,23 @@ if(NOT Qt5Widgets_FOUND)
 	endif()
 endif()
 
+find_package(Qt5Network REQUIRED)
+#find_package(Qt5WebEngineWidgets REQUIRED)
+
 include_directories(SYSTEM "obs-frontend-api")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/libobs")
 
 find_package(Libcurl REQUIRED)
 include_directories(${LIBCURL_INCLUDE_DIRS})
 add_definitions(${LIBCURL_DEFINITIONS})
+
+find_package(AgoraRTC REQUIRED)
+include_directories(${AGORARTC_INCLUDE_DIRS})
+add_definitions(${AGORARTC_DEFINITIONS})
+
+find_package(ssl QUIET)
+include_directories(${SSL_INCLUDE_DIRS})
+add_definitions(${SSL_DEFINITIONS})
 
 if(WIN32)
 	set(obs_PLATFORM_SOURCES
@@ -89,6 +100,13 @@ endif()
 
 set(obs_SOURCES
 	${obs_PLATFORM_SOURCES}
+	requests.cpp
+	ximalaya-api.cpp
+	ximalaya-login-dialog.cpp
+	ximalaya-create-live-dialog.cpp
+	ximalaya-upload-to-album-dialog.cpp
+	ximalaya-agora-rtc-engine-event-handler.cpp
+#	ximalaya-web-dialog.cpp
 	obs-app.cpp
 	api-interface.cpp
 	window-basic-main.cpp
@@ -132,6 +150,13 @@ set(obs_SOURCES
 	qt-wrappers.cpp)
 
 set(obs_HEADERS
+	requests.hpp
+	ximalaya-api.hpp
+	ximalaya-login-dialog.hpp
+	ximalaya-create-live-dialog.hpp
+	ximalaya-upload-to-album-dialog.hpp
+	ximalaya-agora-rtc-engine-event-handler.hpp
+#	ximalaya-web-dialog.hpp
 	obs-app.hpp
 	platform.hpp
 	window-main.hpp
@@ -175,6 +200,10 @@ set(obs_HEADERS
 	qt-wrappers.hpp)
 
 set(obs_UI
+	forms/XimalayaLoginDialog.ui
+	forms/XimalayaCreateLiveDialog.ui
+	forms/XimalayaUploadToAlbumDialog.ui
+#	forms/XimalayaWebDialog.ui
 	forms/NameDialog.ui
 	forms/OBSLicenseAgreement.ui
 	forms/OBSLogReply.ui
@@ -214,8 +243,12 @@ target_link_libraries(obs
 	libobs
 	libff
 	Qt5::Widgets
+	Qt5::Network
+#	Qt5::WebEngineWidgets
 	obs-frontend-api
 	${LIBCURL_LIBRARIES}
+	${AGORARTC_LIBRARIES}
+	${SSL_LIBRARIES}
 	${obs_PLATFORM_LIBRARIES})
 
 define_graphic_modules(obs)

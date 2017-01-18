@@ -24,6 +24,7 @@ find_package(Libx264 QUIET)
 find_package(Libfdk QUIET)
 find_package(ssl QUIET)
 find_package(Qt5Core QUIET)
+find_package(AgoraRTC QUIET)
 
 file(GLOB FFMPEG_BIN_FILES
 	"${FFMPEG_avcodec_INCLUDE_DIR}/../bin/avcodec-*.dll"
@@ -127,6 +128,17 @@ file(GLOB CURL_BIN_FILES
 	"${CURL_INCLUDE_DIR}/bin/libcurl*.dll"
 	"${CURL_INCLUDE_DIR}/bin/curl*.dll"
 	)
+	
+file(GLOB AGORARTC_BIN_FILES
+	"${AGORARTC_INCLUDE_DIR}/../bin${_bin_suffix}/agorartc.dll"
+	"${AGORARTC_INCLUDE_DIR}/../bin${_bin_suffix}/AgoraRTCEngine.dll"
+	"${AGORARTC_INCLUDE_DIR}/../bin/agorartc.dll"
+	"${AGORARTC_INCLUDE_DIR}/../bin/AgoraRTCEngine.dll"
+	"${AGORARTC_INCLUDE_DIR}/bin${_bin_suffix}/agorartc.dll"
+	"${AGORARTC_INCLUDE_DIR}/bin${_bin_suffix}/AgoraRTCEngine.dll"
+	"${AGORARTC_INCLUDE_DIR}/bin/agorartc.dll"
+	"${AGORARTC_INCLUDE_DIR}/bin/AgoraRTCEngine.dll"
+	)
 
 if (ZLIB_LIB)
 	GET_FILENAME_COMPONENT(ZLIB_BIN_PATH ${ZLIB_LIB} PATH)
@@ -148,6 +160,7 @@ if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug")
 		"${Qt5Core_DIR}/../../../bin/Qt5Cored.dll"
 		"${Qt5Core_DIR}/../../../bin/Qt5Guid.dll"
 		"${Qt5Core_DIR}/../../../bin/Qt5Widgetsd.dll"
+                "${Qt5Core_DIR}/../../../bin/Qt5Networkd.dll"
 		"${Qt5Core_DIR}/../../../bin/libGLESv2d.dll"
 		"${Qt5Core_DIR}/../../../bin/libEGLd.dll")
 	file(GLOB QT_DEBUG_PLAT_BIN_FILES
@@ -159,6 +172,7 @@ if (CMAKE_CONFIGURATION_TYPES MATCHES "Rel")
 		"${Qt5Core_DIR}/../../../bin/Qt5Core.dll"
 		"${Qt5Core_DIR}/../../../bin/Qt5Gui.dll"
 		"${Qt5Core_DIR}/../../../bin/Qt5Widgets.dll"
+                "${Qt5Core_DIR}/../../../bin/Qt5Network.dll"
 		"${Qt5Core_DIR}/../../../bin/libGLESv2.dll"
 		"${Qt5Core_DIR}/../../../bin/libEGL.dll")
 	file(GLOB QT_PLAT_BIN_FILES
@@ -169,6 +183,7 @@ file(GLOB QT_ICU_BIN_FILES
 	"${Qt5Core_DIR}/../../../bin/icu*.dll")
 
 set(ALL_BASE_BIN_FILES
+	${AGORARTC_BIN_FILES}
 	${FFMPEG_BIN_FILES}
 	${X264_BIN_FILES}
 	${CURL_BIN_FILES}
@@ -204,6 +219,7 @@ message(STATUS "FFmpeg files: ${FFMPEG_BIN_FILES}")
 message(STATUS "x264 files: ${X264_BIN_FILES}")
 message(STATUS "Libfdk files: ${LIBFDK_BIN_FILES}")
 message(STATUS "Freetype files: ${FREETYPE_BIN_FILES}")
+message(STATUS "agorartc files: ${AGORARTC_BIN_FILES}")
 message(STATUS "curl files: ${CURL_BIN_FILES}")
 message(STATUS "ssl files: ${SSL_BIN_FILES}")
 message(STATUS "zlib files: ${ZLIB_BIN_FILES}")

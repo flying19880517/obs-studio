@@ -1724,6 +1724,7 @@ static void upgrade_settings(void)
 
 int main(int argc, char *argv[])
 {
+	qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 #ifndef _WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
