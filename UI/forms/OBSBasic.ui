@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1006</width>
-    <height>420</height>
+    <width>1066</width>
+    <height>438</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -147,20 +147,6 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="btnOpenConsoleMessages">
-                <property name="text">
-                 <string>Ximalaya.Main.OpenConsoleMessages</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnOpenWebMessages">
-                <property name="text">
-                 <string>Ximalaya.Main.OpenWebMessages</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </widget>
            </item>
@@ -269,6 +255,20 @@
             </property>
             <property name="text">
              <string>Exit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnOpenConsoleMessages">
+            <property name="text">
+             <string>Ximalaya.Main.OpenConsoleMessages</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnOpenWebMessages">
+            <property name="text">
+             <string>Ximalaya.Main.OpenWebMessages</string>
             </property>
            </widget>
           </item>
@@ -890,7 +890,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1006</width>
+     <width>1066</width>
      <height>21</height>
     </rect>
    </property>

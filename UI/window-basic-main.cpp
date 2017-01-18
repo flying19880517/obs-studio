@@ -156,6 +156,8 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionShowProfileFolder->setVisible(false);
 	ui->actionCheckForUpdates->setVisible(false);
 	ui->panLiving->setVisible(false);
+	ui->btnOpenConsoleMessages->setVisible(false);
+	ui->btnOpenWebMessages->setVisible(false);
 	if (!ximalayaApi.requests.isTest())
 	{
 		ui->btnLink->setVisible(false);
@@ -920,6 +922,7 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 	ui->btnLogout->setDisabled(true);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
 	ui->panLiving->setVisible(true);
+	ui->btnOpenConsoleMessages->setVisible(true);
     return true;
 }
 
@@ -938,6 +941,7 @@ bool OBSBasic::XimalayaLiveStop()
 	ui->btnLogout->setDisabled(false);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.NoLive"));
 	ui->panLiving->setVisible(false);
+	ui->btnOpenConsoleMessages->setVisible(false);
 	return true;
 }
 
