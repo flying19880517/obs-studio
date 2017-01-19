@@ -118,6 +118,12 @@ bool XimalayaApi::liveGetPushUrl(QString *msg)
         QString pushurl = result["pushurl"].toArray().first().toString();
         QString pushtoken = result["token"].toString();
 
+		if (pushurl.isEmpty())
+		{
+			*msg = QTStr("Ximalaya.Api.LiveGetPushUrlFailed");
+			return false;
+		}
+
         QUrl realPushUrl(pushurl);
         QUrlQuery realPushUrlQuery;
         realPushUrlQuery.addQueryItem("token", (*requests.settings).value("token").toString());
