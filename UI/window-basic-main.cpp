@@ -155,7 +155,7 @@ OBSBasic::OBSBasic(QWidget *parent)
 	ui->actionShowSettingsFolder->setVisible(false);
 	ui->actionShowProfileFolder->setVisible(false);
 	ui->actionCheckForUpdates->setVisible(false);
-	ui->panLiving->setVisible(false);
+	//ui->panLiving->setVisible(false);
 	ui->btnOpenConsoleMessages->setVisible(false);
 	ui->btnOpenWebMessages->setVisible(false);
 	if (!ximalayaApi.requests.isTest())
@@ -867,6 +867,7 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 		}
 		else
 		{
+			(*ximalayaApi.requests.settings).remove("liveId");
 			return false;
 		}
 	}
@@ -875,6 +876,7 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 		XimalayaCreateLiveDialog dlgInfo(this);
 		if (dlgInfo.exec() != QDialog::Accepted)
 		{
+			(*ximalayaApi.requests.settings).remove("liveId");
 			return false;
 		}
 	}
@@ -890,23 +892,27 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 				ximalayaApi.liveStop("");
 				if (!ximalayaApi.liveStart(&result, &msg))
 				{
+					(*ximalayaApi.requests.settings).remove("liveId");
 					QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
 					return false;
 				}
 			}
 			else
 			{
+				(*ximalayaApi.requests.settings).remove("liveId");
 				return false;
 			}
 		}
 		else
 		{
+			(*ximalayaApi.requests.settings).remove("liveId");
 			QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveStartFailed"), msg);
 			return false;
 		}
 	}
 	if (!ximalayaApi.liveGetPushUrl(&msg))
 	{
+		(*ximalayaApi.requests.settings).remove("liveId");
 		QMessageBox::warning(this, QTStr("Ximalaya.Api.LiveGetPushUrlFailed"), msg);
 		return false;
 	}
@@ -921,7 +927,7 @@ bool OBSBasic::XimalayaLiveStart(bool skipSelect)
 
 	ui->btnLogout->setDisabled(true);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.CurrentLive").arg((*ximalayaApi.requests.settings).value("liveTitle").toString()));
-	ui->panLiving->setVisible(true);
+	//ui->panLiving->setVisible(true);
 	ui->btnOpenConsoleMessages->setVisible(true);
     return true;
 }
@@ -940,7 +946,7 @@ bool OBSBasic::XimalayaLiveStop()
 
 	ui->btnLogout->setDisabled(false);
 	ui->lblLiveTitle->setText(QTStr("Ximalaya.Main.NoLive"));
-	ui->panLiving->setVisible(false);
+	//ui->panLiving->setVisible(false);
 	ui->btnOpenConsoleMessages->setVisible(false);
 	return true;
 }
@@ -4615,11 +4621,13 @@ void OBSBasic::on_btnLink_clicked()
 void OBSBasic::on_btnOpenConsoleMessages_clicked()
 {
 	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
-	QProcess::startDetached(QString("XimalayaFMLiveMessages %1").arg(liveId));
+	QString test = (*ximalayaApi.requests.settings).value("test").toString();
+	QString uid = (*ximalayaApi.requests.settings).value("uid").toString();
+	QString token = (*ximalayaApi.requests.settings).value("token").toString();
+	QProcess::startDetached(QString("XimalayaFMLiveMessages %1 %2 %3 %4").arg(liveId, test, uid, token));
 }
 void OBSBasic::on_btnOpenWebMessages_clicked()
 {
-
 	QString liveId = (*ximalayaApi.requests.settings).value("liveId").toString();
 	QUrl liveUrl = QUrl(QString("%1/live/%2").arg(ximalayaApi.mUrl, liveId));
 	QDesktopServices::openUrl(liveUrl);
